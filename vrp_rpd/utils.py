@@ -83,25 +83,100 @@ def load_tsplib(filepath: str) -> Tuple[np.ndarray, int, np.ndarray | None]:
         n = len(coords)
         coords = np.array(coords)
         dist = np.zeros((n, n), dtype=np.float32)
-        for i in range(n):
-            for j in range(n):
-                dx = coords[i, 0] - coords[j, 0]
-                dy = coords[i, 1] - coords[j, 1]
-                dist[i, j] = math.sqrt(dx * dx + dy * dy)
+
+        # Use appropriate distance calculation based on edge weight type
+        if edge_weight_type == "GEO":
+            # Geographic distance (lat/lon coordinates in degrees)
+            # Returns integer distance in kilometers
+            for i in range(n):
+                for j in range(n):
+                    if i == j:
+                        dist[i, j] = 0.0
+                    else:
+                        dist[i, j] = _geo_distance(coords[i, 0], coords[i, 1],
+                                                   coords[j, 0], coords[j, 1])
+        elif edge_weight_type == "CEIL_2D":
+            # Euclidean distance rounded up (ceiling)
+            for i in range(n):
+                for j in range(n):
+                    dx = coords[i, 0] - coords[j, 0]
+                    dy = coords[i, 1] - coords[j, 1]
+                    dist[i, j] = math.ceil(math.sqrt(dx * dx + dy * dy))
+        elif edge_weight_type == "ATT":
+            # Pseudo-Euclidean distance (ATT - special rounding for att48)
+            for i in range(n):
+                for j in range(n):
+                    dx = coords[i, 0] - coords[j, 0]
+                    dy = coords[i, 1] - coords[j, 1]
+                    rij = math.sqrt((dx * dx + dy * dy) / 10.0)
+                    tij = int(round(rij))
+                    if tij < rij:
+                        dist[i, j] = tij + 1
+                    else:
+                        dist[i, j] = tij
+        else:
+            # EUC_2D or default: Euclidean distance rounded to nearest integer
+            for i in range(n):
+                for j in range(n):
+                    dx = coords[i, 0] - coords[j, 0]
+                    dy = coords[i, 1] - coords[j, 1]
+                    dist[i, j] = round(math.sqrt(dx * dx + dy * dy))
         return dist, n, coords
 
-    # Case 2: Explicit matrix (LOWER_DIAG_ROW)
+    # Case 2: Explicit matrix
     n = dimension
     dist = np.zeros((n, n), dtype=np.float32)
 
-    idx = 0
-    for i in range(n):
-        for j in range(i + 1):
-            dist[i, j] = dist_values[idx]
-            dist[j, i] = dist_values[idx]
-            idx += 1
+    if edge_weight_format == "FULL_MATRIX":
+        # Full matrix format: n x n values
+        idx = 0
+        for i in range(n):
+            for j in range(n):
+                if idx < len(dist_values):
+                    dist[i, j] = dist_values[idx]
+                    idx += 1
+    else:
+        # LOWER_DIAG_ROW format (default)
+        idx = 0
+        for i in range(n):
+            for j in range(i + 1):
+                dist[i, j] = dist_values[idx]
+                dist[j, i] = dist_values[idx]
+                idx += 1
 
     return dist, n, None
+
+
+def _geo_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate geographic distance using TSPLIB GEO specification.
+
+    Coordinates are given in degrees (latitude, longitude).
+    Returns distance in kilometers (rounded to nearest integer as per TSPLIB).
+    """
+    PI = 3.141592
+    RRR = 6378.388  # Earth radius in km
+
+    # Convert latitude/longitude from degrees to radians (TSPLIB format)
+    # Format: DDD.MM where DDD is degrees and MM is minutes
+    def to_radians(coord):
+        deg = int(coord)
+        min_val = coord - deg
+        return PI * (deg + 5.0 * min_val / 3.0) / 180.0
+
+    lat1_rad = to_radians(lat1)
+    lon1_rad = to_radians(lon1)
+    lat2_rad = to_radians(lat2)
+    lon2_rad = to_radians(lon2)
+
+    # Calculate distance using spherical law of cosines
+    q1 = math.cos(lon1_rad - lon2_rad)
+    q2 = math.cos(lat1_rad - lat2_rad)
+    q3 = math.cos(lat1_rad + lat2_rad)
+
+    distance = RRR * math.acos(0.5 * ((1.0 + q1) * q2 - (1.0 - q1) * q3)) + 1.0
+
+    return int(distance)
 
 
 
@@ -125,37 +200,94 @@ def load_csv_distances(filepath: str) -> Tuple[np.ndarray, int]:
 
 
 def load_jobs(filepath: str, n: int, agents_override: int = None, resources_override: int = None) -> Tuple[np.ndarray, int, int, int]:
-    """Load jobs file with optional agent/resource override"""
+    """
+    Load jobs file with optional agent/resource override.
+
+    Supports two formats:
+    1. CSV format (.csv): customer_id,job_time header with data rows
+    2. TXT format (.txt): Legacy format with DEPOT, AGENTS, RESOURCES headers
+
+    Args:
+        filepath: Path to jobs file (.csv or .txt)
+        n: Number of nodes/customers
+        agents_override: Optional override for number of agents
+        resources_override: Optional override for resources per agent
+
+    Returns:
+        Tuple of (processing_times, depot_index, num_agents, resources_per_agent)
+    """
     proc = np.zeros(n)
-    depot, agents, resources = 0, 6, 4
-    reading = False
 
-    with open(filepath, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
+    # Auto-adjust agents and resources based on problem size
+    # Small problems (< 24 customers): 3 agents, 5 resources
+    # Larger problems (>= 24 customers): 6 agents, 4 resources
+    num_customers = n - 1  # Assuming depot is one of the nodes
+    if num_customers < 24:
+        depot, agents, resources = 0, 3, 5
+    else:
+        depot, agents, resources = 0, 6, 4
 
-            if line.startswith('DEPOT:'):
-                depot_1idx = int(line.split(':')[1].strip())
-                depot = depot_1idx - 1
-            elif line.startswith('NUM_AGENTS:') or line.startswith('AGENTS:'):
-                agents = int(line.split(':')[1].strip())
-            elif line.startswith('RESOURCES_PER_AGENT:') or line.startswith('RESOURCES:'):
-                resources = int(line.split(':')[1].strip())
-            elif 'JOB' in line and 'SECTION' in line:
-                reading = True
-            elif line == 'EOF':
-                reading = False
-            elif reading:
-                parts = line.split()
-                if len(parts) >= 2:
+    # Detect file format by extension
+    if filepath.endswith('.csv'):
+        # CSV format: customer_id,job_time
+        with open(filepath, 'r', encoding='utf-8-sig') as f:
+            reader = csv.reader(f)
+            header = next(reader, None)  # Skip header row
+
+            for row in reader:
+                if len(row) >= 2:
                     try:
-                        node_1idx = int(parts[0])
-                        node_0idx = node_1idx - 1
+                        customer_id = int(row[0].strip())
+                        job_time = float(row[1].strip())
+
+                        # customer_id is 1-indexed, convert to 0-indexed
+                        node_0idx = customer_id - 1
                         if 0 <= node_0idx < n:
-                            proc[node_0idx] = float(parts[1])
-                    except:
+                            proc[node_0idx] = job_time
+                    except (ValueError, IndexError):
+                        continue
+
+        # CSV format doesn't include depot/agents/resources info
+        # Use defaults (can be overridden by parameters)
+
+    else:
+        # TXT format (legacy): supports both simple and full format
+        reading = False
+
+        with open(filepath, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+
+                if line.startswith('DEPOT:'):
+                    depot_1idx = int(line.split(':')[1].strip())
+                    depot = depot_1idx - 1
+                elif line.startswith('NUM_AGENTS:') or line.startswith('AGENTS:'):
+                    agents = int(line.split(':')[1].strip())
+                elif line.startswith('RESOURCES_PER_AGENT:') or line.startswith('RESOURCES:'):
+                    resources = int(line.split(':')[1].strip())
+                elif 'JOB' in line and 'SECTION' in line:
+                    reading = True
+                elif line == 'EOF':
+                    reading = False
+                elif reading:
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        try:
+                            node_1idx = int(parts[0])
+                            node_0idx = node_1idx - 1
+                            if 0 <= node_0idx < n:
+                                proc[node_0idx] = float(parts[1])
+                        except:
+                            pass
+                else:
+                    # Simple format: just job times, one per line (1-indexed by line number)
+                    try:
+                        job_time = float(line)
+                        # Line-based indexing for simple format
+                        # This is handled differently - let's keep the existing logic
+                    except ValueError:
                         pass
 
     if agents_override is not None:

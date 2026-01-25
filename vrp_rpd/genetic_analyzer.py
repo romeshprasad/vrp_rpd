@@ -24,8 +24,18 @@ except ImportError:
 class GeneticAnalyzer:
     """Genetic analysis for building blocks, FFT patterns, and similarity"""
 
-    def __init__(self, use_gpu: bool = False):
+    def __init__(self, use_gpu: bool = False, use_blocks: bool = True, use_fft: bool = False, use_similarity: bool = False):
         self.use_gpu = use_gpu and HAS_CUPY
+        self.use_blocks = use_blocks
+        self.use_fft = use_fft
+        self.use_similarity = use_similarity
+
+        # Track effectiveness of each strategy
+        self.strategy_stats = {
+            'block_based': {'generated': 0, 'injected': 0},
+            'interpolation': {'generated': 0, 'injected': 0},
+            'mutation': {'generated': 0, 'injected': 0}
+        }
 
     def analyze(self, solutions: List[Dict], cycle: int) -> Dict:
         """Run full analysis"""
@@ -42,20 +52,36 @@ class GeneticAnalyzer:
         best_fitness = solutions[0]['fitness'] if solutions else float('inf')
         worst_fitness = solutions[-1]['fitness'] if solutions else float('inf')
         print(f"[GP] Fitness range: best={best_fitness:.2f}, worst={worst_fitness:.2f}", flush=True)
+        print(f"[GP] Analysis config: blocks={self.use_blocks}, fft={self.use_fft}, similarity={self.use_similarity}", flush=True)
 
-        print(f"[GP] Starting 3-phase analysis...", flush=True)
+        print(f"[GP] Starting analysis...", flush=True)
 
-        print(f"[GP] Phase 1/3: Extracting building blocks...", flush=True)
-        building_blocks = self._extract_building_blocks(solutions)
-        print(f"[GP] Phase 1/3 complete: Found {len(building_blocks)} building blocks", flush=True)
+        # Phase 1: Building blocks (if enabled)
+        if self.use_blocks:
+            print(f"[GP] Phase 1: Extracting building blocks...", flush=True)
+            building_blocks = self._extract_building_blocks(solutions)
+            print(f"[GP] Phase 1 complete: Found {len(building_blocks)} building blocks", flush=True)
+        else:
+            print(f"[GP] Phase 1: Building blocks DISABLED", flush=True)
+            building_blocks = []
 
-        print(f"[GP] Phase 2/3: Running FFT frequency analysis...", flush=True)
-        fft_patterns = self._analyze_fft(solutions, cycle)
-        print(f"[GP] Phase 2/3 complete: Found {len(fft_patterns)} FFT patterns", flush=True)
+        # Phase 2: FFT (if enabled)
+        if self.use_fft:
+            print(f"[GP] Phase 2: Running FFT frequency analysis...", flush=True)
+            fft_patterns = self._analyze_fft(solutions, cycle)
+            print(f"[GP] Phase 2 complete: Found {len(fft_patterns)} FFT patterns", flush=True)
+        else:
+            print(f"[GP] Phase 2: FFT analysis DISABLED", flush=True)
+            fft_patterns = []
 
-        print(f"[GP] Phase 3/3: Computing similarity clusters...", flush=True)
-        similarity_patterns = self._analyze_similarity(solutions, cycle)
-        print(f"[GP] Phase 3/3 complete: Found {len(similarity_patterns)} similarity patterns", flush=True)
+        # Phase 3: Similarity (if enabled)
+        if self.use_similarity:
+            print(f"[GP] Phase 3: Computing similarity clusters...", flush=True)
+            similarity_patterns = self._analyze_similarity(solutions, cycle)
+            print(f"[GP] Phase 3 complete: Found {len(similarity_patterns)} similarity patterns", flush=True)
+        else:
+            print(f"[GP] Phase 3: Similarity analysis DISABLED", flush=True)
+            similarity_patterns = []
 
         print(f"[GP] ========== GP ANALYSIS COMPLETE ==========\n", flush=True)
 
@@ -205,48 +231,57 @@ class GeneticAnalyzer:
         print(f"[GP] Generating {n_candidates} new candidate solutions", flush=True)
 
         candidates = []
+        candidate_sources = []  # Track which strategy created each candidate
 
         top_solutions = analysis.get('top_solutions', [])
         building_blocks = analysis.get('building_blocks', [])
+        fft_patterns = analysis.get('fft_patterns', [])
+        similarity_patterns = analysis.get('similarity_patterns', [])
 
-        print(f"[GP] Available data: {len(top_solutions)} top solutions, {len(building_blocks)} building blocks", flush=True)
+        print(f"[GP] Available data: {len(top_solutions)} top solutions, {len(building_blocks)} building blocks, {len(fft_patterns)} FFT patterns, {len(similarity_patterns)} similarity patterns", flush=True)
 
         if not top_solutions:
             print(f"[GP] WARNING: No top solutions available. Cannot generate candidates.", flush=True)
             print(f"[GP] ========== CANDIDATE GENERATION FAILED ==========\n", flush=True)
             return candidates
 
-        n_block = n_candidates // 3
+        # Dynamically allocate candidates based on enabled methods
+        n_block = (n_candidates // 3) if self.use_blocks else 0
         n_interpolate = n_candidates // 3
         n_mutate = n_candidates - n_block - n_interpolate
 
         print(f"[GP] Generation strategy: {n_block} block-based, {n_interpolate} interpolated, {n_mutate} mutated", flush=True)
 
-        # Strategy 1: Building block combination
-        print(f"[GP] Strategy 1: Creating {n_block} candidates via building block combination...", flush=True)
-        for _ in range(n_block):
-            base_idx = np.random.randint(0, min(20, len(top_solutions)))
-            chrom = top_solutions[base_idx]['chromosome'].copy()
+        # Strategy 1: Building block combination (if enabled)
+        if self.use_blocks and n_block > 0:
+            print(f"[GP] Strategy 1: Creating {n_block} candidates via building block combination...", flush=True)
+            for _ in range(n_block):
+                base_idx = np.random.randint(0, min(20, len(top_solutions)))
+                chrom = top_solutions[base_idx]['chromosome'].copy()
 
-            if building_blocks and len(chrom.shape) == 2:
-                n_insert = np.random.randint(1, min(4, len(building_blocks)) + 1)
-                selected_blocks = np.random.choice(len(building_blocks), n_insert, replace=False)
+                if building_blocks and len(chrom.shape) == 2:
+                    n_insert = np.random.randint(1, min(4, len(building_blocks)) + 1)
+                    selected_blocks = np.random.choice(len(building_blocks), n_insert, replace=False)
 
-                for b_idx in selected_blocks:
-                    block = building_blocks[b_idx]
-                    start, end = block['start_pos'], block['end_pos']
-                    pattern = np.array(block['pattern'])
+                    for b_idx in selected_blocks:
+                        block = building_blocks[b_idx]
+                        start, end = block['start_pos'], block['end_pos']
+                        pattern = np.array(block['pattern'])
 
-                    if end <= len(chrom):
-                        block_shape = chrom[start:end].shape
-                        if pattern.size >= np.prod(block_shape):
-                            mix = np.random.uniform(0.3, 0.8)
-                            pattern_reshaped = pattern[:np.prod(block_shape)].reshape(block_shape)
-                            chrom[start:end] = (1 - mix) * chrom[start:end] + mix * pattern_reshaped
+                        if end <= len(chrom):
+                            block_shape = chrom[start:end].shape
+                            if pattern.size >= np.prod(block_shape):
+                                mix = np.random.uniform(0.3, 0.8)
+                                pattern_reshaped = pattern[:np.prod(block_shape)].reshape(block_shape)
+                                chrom[start:end] = (1 - mix) * chrom[start:end] + mix * pattern_reshaped
 
-            self._fix_constraints(chrom, m)
-            candidates.append(chrom.astype(np.float32))
-        print(f"[GP] Strategy 1 complete: {n_block} block-based candidates created", flush=True)
+                self._fix_constraints(chrom, m)
+                candidates.append(chrom.astype(np.float32))
+                candidate_sources.append('block_based')
+                self.strategy_stats['block_based']['generated'] += 1
+            print(f"[GP] Strategy 1 complete: {n_block} block-based candidates created", flush=True)
+        elif not self.use_blocks:
+            print(f"[GP] Strategy 1: Building blocks DISABLED, skipping", flush=True)
 
         # Strategy 2: Interpolation
         print(f"[GP] Strategy 2: Creating {n_interpolate} candidates via solution interpolation...", flush=True)
@@ -261,23 +296,106 @@ class GeneticAnalyzer:
 
                 self._fix_constraints(chrom, m)
                 candidates.append(chrom.astype(np.float32))
+                candidate_sources.append('interpolation')
+                self.strategy_stats['interpolation']['generated'] += 1
         print(f"[GP] Strategy 2 complete: {n_interpolate} interpolated candidates created", flush=True)
 
-        # Strategy 3: Guided mutation
-        print(f"[GP] Strategy 3: Creating {n_mutate} candidates via guided mutation...", flush=True)
-        for _ in range(n_mutate):
-            base = top_solutions[np.random.randint(0, min(10, len(top_solutions)))]['chromosome'].copy()
-            noise = np.random.randn(*base.shape).astype(np.float32) * 0.05
-            chrom = base + noise
+        # Strategy 3: Guided mutation (optionally using FFT)
+        if self.use_fft and fft_patterns:
+            print(f"[GP] Strategy 3: Creating {n_mutate} candidates via FFT-guided mutation...", flush=True)
+            # Use FFT patterns to guide mutation
+            for _ in range(n_mutate):
+                base = top_solutions[np.random.randint(0, min(10, len(top_solutions)))]['chromosome'].copy()
 
-            self._fix_constraints(chrom, m)
-            candidates.append(chrom.astype(np.float32))
-        print(f"[GP] Strategy 3 complete: {n_mutate} mutated candidates created", flush=True)
+                # Select a random FFT pattern
+                fft_pattern = fft_patterns[np.random.randint(0, len(fft_patterns))]
+                freq = fft_pattern.get('dominant_frequency', 1)
+
+                # Create periodic perturbation based on dominant frequency
+                if len(base.shape) == 2:
+                    n_rows = base.shape[0]
+                    # Add sine wave perturbation at dominant frequency
+                    phase = np.random.uniform(0, 2 * np.pi)
+                    periodic_noise = np.sin(2 * np.pi * freq * np.arange(n_rows) / n_rows + phase).reshape(-1, 1)
+                    periodic_noise = np.tile(periodic_noise, (1, base.shape[1]))
+                    chrom = base + periodic_noise * 0.05 + np.random.randn(*base.shape).astype(np.float32) * 0.02
+                else:
+                    # Flat chromosome
+                    noise = np.random.randn(*base.shape).astype(np.float32) * 0.05
+                    chrom = base + noise
+
+                self._fix_constraints(chrom, m)
+                candidates.append(chrom.astype(np.float32))
+                candidate_sources.append('mutation')
+                self.strategy_stats['mutation']['generated'] += 1
+            print(f"[GP] Strategy 3 complete: {n_mutate} FFT-guided mutated candidates created", flush=True)
+        else:
+            print(f"[GP] Strategy 3: Creating {n_mutate} candidates via guided mutation...", flush=True)
+            for _ in range(n_mutate):
+                base = top_solutions[np.random.randint(0, min(10, len(top_solutions)))]['chromosome'].copy()
+                noise = np.random.randn(*base.shape).astype(np.float32) * 0.05
+                chrom = base + noise
+
+                self._fix_constraints(chrom, m)
+                candidates.append(chrom.astype(np.float32))
+                candidate_sources.append('mutation')
+                self.strategy_stats['mutation']['generated'] += 1
+            print(f"[GP] Strategy 3 complete: {n_mutate} mutated candidates created", flush=True)
+
+        # Similarity-based diversity filtering (if enabled)
+        if self.use_similarity and similarity_patterns and len(candidates) > 0:
+            print(f"[GP] Applying similarity-based diversity filtering...", flush=True)
+            threshold = similarity_patterns[0].get('threshold', float('inf'))
+
+            # Check each candidate against top solutions
+            filtered_candidates = []
+            rejected = 0
+            for cand in candidates:
+                cand_flat = cand.flatten()[:200]  # Compare first 200 elements like in similarity analysis
+
+                # Compute distance to nearest top solution
+                min_dist = float('inf')
+                for sol in top_solutions[:50]:  # Check against top 50
+                    sol_chrom = sol['chromosome']
+                    if len(sol_chrom.shape) > 1:
+                        sol_chrom = sol_chrom.flatten()
+                    sol_flat = sol_chrom[:200]
+
+                    # Pad if needed
+                    max_len = max(len(cand_flat), len(sol_flat))
+                    cand_padded = np.pad(cand_flat, (0, max_len - len(cand_flat)))
+                    sol_padded = np.pad(sol_flat, (0, max_len - len(sol_flat)))
+
+                    dist = np.sqrt(np.sum((cand_padded - sol_padded) ** 2))
+                    min_dist = min(min_dist, dist)
+
+                # Keep candidate if sufficiently different (distance > threshold)
+                if min_dist > threshold:
+                    filtered_candidates.append(cand)
+                else:
+                    rejected += 1
+
+            print(f"[GP] Diversity filter: kept {len(filtered_candidates)}/{len(candidates)} candidates (rejected {rejected} too similar)", flush=True)
+            candidates = filtered_candidates
 
         print(f"[GP] Total candidates generated: {len(candidates)}", flush=True)
+        print(f"[GP] Strategy breakdown: Block={self.strategy_stats['block_based']['generated']}, "
+              f"Interp={self.strategy_stats['interpolation']['generated']}, "
+              f"Mut={self.strategy_stats['mutation']['generated']}", flush=True)
         print(f"[GP] ========== CANDIDATE GENERATION COMPLETE ==========\n", flush=True)
 
         return candidates
+
+    def print_effectiveness_report(self):
+        """Print report showing which strategies work best"""
+        print(f"\n[GP] ========== STRATEGY EFFECTIVENESS REPORT ==========", flush=True)
+        for strategy, stats in self.strategy_stats.items():
+            generated = stats['generated']
+            injected = stats['injected']
+            if generated > 0:
+                rate = (injected / generated) * 100
+                print(f"[GP] {strategy:15s}: {injected:4d}/{generated:4d} candidates injected ({rate:5.1f}%)", flush=True)
+        print(f"[GP] ========================================================\n", flush=True)
 
     def _fix_constraints(self, chrom: np.ndarray, m: int):
         """Fix VRP constraints in-place"""

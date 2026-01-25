@@ -9,6 +9,8 @@ import json
 import numpy as np
 import signal
 import time
+import sys
+import os
 from typing import Dict
 from contextlib import contextmanager
 
@@ -23,6 +25,10 @@ from .heuristics import (
 from .decoder import compute_makespan_fast, decode_chromosome
 from .utils import simulate_solution
 from .visualization import generate_html_gantt
+
+# Import validator's simulation for accurate makespan calculation
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from eval_soln import evaluate_solution_physical_model
 
 
 class TimeoutException(Exception):
@@ -90,16 +96,36 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
         """Helper to add a solution with full details"""
         nonlocal best_makespan, best_tours, best_chrom, best_heuristic
 
-        decoder_makespan = compute_makespan_fast(chrom, instance, allow_mixed=True)
-
         # Decode to get tours if not provided
         if tours is None:
-            tours = decode_chromosome(chrom, instance, allow_mixed=True)
+            tours = decode_chromosome(chrom, instance, allow_mixed=False)
 
-        # Simulate to get detailed job times
+        # First get job times using internal simulate_solution for route details
         job_times, agent_tours, agent_completion_times, customer_assignment = simulate_solution(
             tours, instance
         )
+
+        # Prepare customers list
+        if instance.depot == 0:
+            customers = list(range(1, len(instance.dist)))
+        else:
+            customers = [i for i in range(len(instance.dist)) if i != instance.depot]
+
+        # Use validator's simulation for ACCURATE makespan (matches validation)
+        simulated_makespan, _, _ = evaluate_solution_physical_model(
+            agent_tours, instance.dist, instance.proc, instance.depot,
+            instance.m, instance.k, customers
+        )
+
+        # Validate customer coverage
+        served_customers = set()
+        for a in range(instance.m):
+            tour = agent_tours.get(a, [])
+            for cust_loc, op in tour:
+                if op == 'D':  # Count dropoffs
+                    served_customers.add(cust_loc)
+
+        is_valid = len(served_customers) == instance.num_customers
 
         # Build routes JSON
         routes_json = []
@@ -132,23 +158,28 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
 
         solution_entry = {
             'heuristic': name,
-            'makespan': float(decoder_makespan),
+            'makespan': float(simulated_makespan),
             'execution_time_seconds': float(exec_time),
             'chromosome': chrom.tolist(),
             'routes': routes_json,
-            'jobs': jobs_json
+            'jobs': jobs_json,
+            'valid': is_valid,
+            'customers_served': len(served_customers)
         }
         all_solutions.append(solution_entry)
 
-        print(f"  {name}: {decoder_makespan:.2f} (time: {exec_time:.2f}s)")
+        # Print with validation status
+        status = "✓" if is_valid else f"✗ INVALID ({len(served_customers)}/{instance.num_customers} customers)"
+        print(f"  {name}: {simulated_makespan:.2f} (time: {exec_time:.2f}s) {status}")
 
-        if decoder_makespan < best_makespan:
-            best_makespan = decoder_makespan
+        # Only consider valid solutions for "best"
+        if is_valid and simulated_makespan < best_makespan:
+            best_makespan = simulated_makespan
             best_tours = tours
             best_chrom = chrom
             best_heuristic = name
 
-        return decoder_makespan
+        return simulated_makespan
 
     # 1. Nearest Neighbor
     print("Running Nearest Neighbor heuristic...")
@@ -217,6 +248,9 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
             print(f"  Greedy Defer {mult}x failed: {e}")
 
     # 5. 2-opt improved solutions
+    # DISABLED: 2-opt is too slow for large datasets
+    # Uncomment the section below to re-enable 2-opt heuristics
+    """
     print("Running 2-opt improved heuristics...")
     for base in ['nearest_neighbor', 'max_regret', 'savings']:
         start_time = time.time()
@@ -234,6 +268,8 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
             print(f"  2-opt ({base}) TIMEOUT: {e}")
         except Exception as e:
             print(f"  2-opt ({base}) failed: {e}")
+    """
+    print("Skipping 2-opt heuristics (disabled for performance)")
 
     # Print summary table
     print("\n" + "=" * 70)

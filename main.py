@@ -6,6 +6,7 @@ Usage:
   python main.py --tsp berlin52.tsp --jobs berlin52_jobs.txt \\
       --Agents 6 --Resources 4 --Heuristic 1 --GP yes --Warm yes --GeneInjection yes
 """
+
 import numpy as np
 import random
 import os
@@ -96,6 +97,14 @@ Examples:
     parser.add_argument('--GeneInjection', type=str, default='yes', choices=['yes', 'no'],
                         help='Enable gene injection from analysis (yes/no)')
 
+    # GP Analysis Components (only used if --GP yes)
+    parser.add_argument('--use-blocks', type=str, default='yes', choices=['yes', 'no'],
+                        help='Use building block analysis in candidate generation (default: yes)')
+    parser.add_argument('--use-fft', type=str, default='no', choices=['yes', 'no'],
+                        help='Use FFT frequency analysis in candidate generation (default: no)')
+    parser.add_argument('--use-similarity', type=str, default='no', choices=['yes', 'no'],
+                        help='Use similarity clustering in candidate generation (default: no)')
+
     # Worker configuration
     parser.add_argument('--gpus', type=int, default=None, help='Number of GPUs (default: all available)')
     parser.add_argument('--cpu-workers', type=int, default=0, help='Number of CPU workers')
@@ -104,7 +113,7 @@ Examples:
 
     # Evolution parameters
     parser.add_argument('--gens', type=int, default=5000, help='Total generations')
-    parser.add_argument('--interval', type=int, default=1000, help='Generations per GP cycle (default: 1000)')
+    parser.add_argument('--interval', type=int, default=200, help='Generations per GP cycle (default: 200)')
     parser.add_argument('--candidates', type=int, default=20, help='Candidates per injection')
 
     # Diversity & Exploration parameters
@@ -132,8 +141,10 @@ Examples:
 
     parser.add_argument('--seed', type=int, default=None)
 
-    args = parser.parse_args()
+    parser.add_argument("--allow_mixed", action="store_false", default=True,
+    help="Disables interleaving if this is used")
 
+    args = parser.parse_args()
 
     # Apply seed if provided
     if args.seed is not None:
@@ -217,7 +228,10 @@ Examples:
         use_gp=(args.GP == 'yes'),
         use_warm=(args.Warm == 'yes'),
         use_gene_injection=(args.GeneInjection == 'yes'),
-        allow_mixed=True,
+        use_blocks=(args.use_blocks == 'yes'),
+        use_fft=(args.use_fft == 'yes'),
+        use_similarity=(args.use_similarity == 'yes'),
+        allow_mixed=args.allow_mixed,
         json_solution_chromosome=json_chromosome,
         checkpoint_interval=args.checkpoint_interval,
         checkpoint_prefix=checkpoint_prefix,
@@ -241,7 +255,7 @@ Examples:
     # Always save solution JSON with useful information
     if result.get('makespan', float('inf')) < float('inf') and result.get('best_chromosome') is not None:
         chrom = result['best_chromosome']
-        tours = decode_chromosome(chrom, instance, allow_mixed=True)
+        tours = decode_chromosome(chrom, instance, args.allow_mixed)
         job_times, agent_tours, agent_completion_times, customer_assignment = simulate_solution(
             tours, instance
         )
@@ -361,6 +375,4 @@ Examples:
         )
 
 if __name__ == '__main__':
-
-    
     main()

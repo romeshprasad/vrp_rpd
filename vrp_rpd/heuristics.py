@@ -54,7 +54,11 @@ def generate_nearest_neighbor_solution(
     pick_agent_map = {}  # cust_idx -> pick agent
     agent_event_count = {a: 0 for a in range(m)}  # Per-agent event counter
 
-    while len(picked) < num_customers:
+    iteration_count = 0
+    max_iterations = num_customers * 10  # Prevent infinite loops
+
+    while len(picked) < num_customers and iteration_count < max_iterations:
+        iteration_count += 1
         best_score = float('inf')
         best_action = None
 
@@ -90,7 +94,30 @@ def generate_nearest_neighbor_solution(
                         best_action = ('P', a, c_idx)
 
         if best_action is None:
-            break
+            # Fallback: Force assignment to break deadlock
+            # First, try to pickup any ready customers
+            for c_idx in range(num_customers):
+                if c_idx in dropped and c_idx not in picked:
+                    for a in range(m):
+                        if agent_deployed[a] < k:
+                            best_action = ('P', a, c_idx)
+                            break
+                    if best_action:
+                        break
+
+            # If still none, force a dropoff
+            if best_action is None:
+                for c_idx in range(num_customers):
+                    if c_idx not in dropped:
+                        for a in range(m):
+                            if agent_deployed[a] > 0:
+                                best_action = ('D', a, c_idx)
+                                break
+                        if best_action:
+                            break
+
+            if best_action is None:
+                break
 
         op, a, c_idx = best_action
         cust_loc = customers[c_idx]
@@ -102,7 +129,7 @@ def generate_nearest_neighbor_solution(
 
             agent_time[a] = completion
             agent_loc[a] = cust_loc
-            agent_deployed[a] += 1
+            agent_deployed[a] -= 1  # FIXED: Dropoff consumes a resource
             dropped[c_idx] = (a, completion)
             tours[a].append((cust_loc, 'D', c_idx))
             drop_order[c_idx] = agent_event_count[a]
@@ -116,7 +143,7 @@ def generate_nearest_neighbor_solution(
 
             agent_time[a] = actual_pickup
             agent_loc[a] = cust_loc
-            agent_deployed[dropper] -= 1
+            agent_deployed[dropper] += 1  # FIXED: Pickup returns a resource to the dropper
             picked.add(c_idx)
             tours[a].append((cust_loc, 'P', c_idx))
             pick_order[c_idx] = agent_event_count[a]
@@ -233,9 +260,14 @@ def generate_max_regret_solution(
         return evaluate_tour_makespan(test_tours)
 
     # Greedy insertion with regret
-    while unassigned:
+    iteration_count = 0
+    max_iterations = num_customers * 10  # Prevent infinite loops
+
+    while unassigned and iteration_count < max_iterations:
+        iteration_count += 1
         best_regret = -float('inf')
         best_insertion = None
+        fallback_insertion = None  # Track ANY valid insertion as fallback
 
         for c_idx in unassigned:
             # Find best and second-best dropoff insertion
@@ -255,12 +287,34 @@ def generate_max_regret_solution(
 
             regret = second_cost - best_cost
 
+            # Track first valid insertion as fallback
+            if fallback_insertion is None:
+                fallback_insertion = (c_idx, costs[0][1], costs[0][2])
+
             if regret > best_regret:
                 best_regret = regret
                 best_insertion = (c_idx, costs[0][1], costs[0][2])
 
+        # Use fallback if no regret-based insertion found
+        if best_insertion is None and fallback_insertion is not None:
+            best_insertion = fallback_insertion
+
         if best_insertion is None:
-            break
+            # No valid insertion found using cost evaluation
+            # Force assign remaining customers to balance load across agents
+            if unassigned:
+                c_idx = next(iter(unassigned))
+                # Find agent with fewest customers and most available resources
+                agent_loads = [(len(agent_tours[a]), a) for a in range(m)]
+                agent_loads.sort()
+                agent = agent_loads[0][1]
+                # Append at end (simplest position)
+                agent_tours[agent].append((c_idx, 'D'))
+                dropped_set.add(c_idx)
+                unassigned.discard(c_idx)
+                continue  # Don't break - keep trying to assign remaining customers
+            else:
+                break
 
         c_idx, agent, pos = best_insertion
         agent_tours[agent].insert(pos, (c_idx, 'D'))

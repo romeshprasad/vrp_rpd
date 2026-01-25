@@ -25,7 +25,7 @@ def gpu_worker(
     total_cycles: int,
     allow_mixed: bool,
     result_queue: mp.Queue,
-    solution_pipe,
+    solution_queue: mp.Queue,
     candidate_pipe,
     use_gp: bool,
     use_gene_injection: bool,
@@ -215,12 +215,16 @@ def gpu_worker(
             if use_gp:
                 island._evaluate_population()
                 all_sols = island.get_all_solutions()
-                all_sols_sorted = sorted(all_sols, key=lambda x: x['fitness'])[:100]
 
-                # Skip sending solutions to avoid blocking - main process doesn't need all of them
-                # Workers will still send final results via result_queue
-                # This prevents pipe buffer deadlock
-                pass  # Disabled to prevent blocking
+                # For large instances, send fewer solutions to avoid pipe blocking
+                num_sols_to_send = 20 if instance.num_customers > 500 else 100
+                all_sols_sorted = sorted(all_sols, key=lambda x: x['fitness'])[:num_sols_to_send]
+
+                # Send solutions to main process for GP analysis (queue never blocks!)
+                try:
+                    solution_queue.put({'solutions': all_sols_sorted}, block=False)
+                except:
+                    pass  # Queue full (very unlikely), skip this cycle
 
                 if use_gene_injection:
                     try:
@@ -229,12 +233,13 @@ def gpu_worker(
                             if response and 'candidates' in response:
                                 n = island.inject_candidates(response['candidates'])
                                 total_injected += n
+                                print(f"[GPU {gpu_id}] Gene injection: {n} candidates injected at gen {gen} (total so far: {total_injected})", flush=True)
                     except Exception as e:
                         pass
-        
+
         elapsed = time.time() - start_time
         island._evaluate_population()
-        
+
         print(f"[GPU {gpu_id}] Evolution complete. Sending final results...", flush=True)
         result_queue.put({
             'worker_id': f'gpu_{gpu_id}',
@@ -259,7 +264,7 @@ def cpu_worker(
     total_cycles: int,
     allow_mixed: bool,
     result_queue: mp.Queue,
-    solution_pipe,
+    solution_queue: mp.Queue,
     candidate_pipe,
     use_gp: bool,
     use_gene_injection: bool,
@@ -371,12 +376,16 @@ def cpu_worker(
             if use_gp:
                 island._evaluate_population()
                 all_sols = island.get_all_solutions()
-                all_sols_sorted = sorted(all_sols, key=lambda x: x['fitness'])[:100]
 
-                # Skip sending solutions to avoid blocking - main process doesn't need all of them
-                # Workers will still send final results via result_queue
-                # This prevents pipe buffer deadlock
-                pass  # Disabled to prevent blocking
+                # For large instances, send fewer solutions to avoid pipe blocking
+                num_sols_to_send = 20 if instance.num_customers > 500 else 100
+                all_sols_sorted = sorted(all_sols, key=lambda x: x['fitness'])[:num_sols_to_send]
+
+                # Send solutions to main process for GP analysis (queue never blocks!)
+                try:
+                    solution_queue.put({'solutions': all_sols_sorted}, block=False)
+                except:
+                    pass  # Queue full (very unlikely), skip this cycle
 
                 if use_gene_injection:
                     try:
@@ -385,6 +394,7 @@ def cpu_worker(
                             if response and 'candidates' in response:
                                 n = island.inject_candidates(response['candidates'])
                                 total_injected += n
+                                print(f"[CPU {cpu_id}] Gene injection: {n} candidates injected at gen {gen} (total so far: {total_injected})", flush=True)
                     except Exception as e:
                         pass
 

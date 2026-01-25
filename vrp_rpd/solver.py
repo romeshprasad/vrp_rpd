@@ -50,6 +50,9 @@ class VRPRPDSolver:
         use_gp: bool = True,
         use_warm: bool = True,
         use_gene_injection: bool = True,
+        use_blocks: bool = True,
+        use_fft: bool = False,
+        use_similarity: bool = False,
         allow_mixed: bool = True,
         json_solution_chromosome: Optional[np.ndarray] = None,
         checkpoint_interval: int = 0,
@@ -74,6 +77,9 @@ class VRPRPDSolver:
         self.use_gp = use_gp
         self.use_warm = use_warm
         self.use_gene_injection = use_gene_injection
+        self.use_blocks = use_blocks
+        self.use_fft = use_fft
+        self.use_similarity = use_similarity
         self.allow_mixed = allow_mixed
         self.json_solution_chromosome = json_solution_chromosome
         self.checkpoint_interval = checkpoint_interval
@@ -131,6 +137,11 @@ class VRPRPDSolver:
                 perturbed[:, 1] = np.clip(np.round(perturbed[:, 1]), 0, self.instance.m - 1)
                 perturbed[:, 3] = np.maximum(perturbed[:, 3], perturbed[:, 2] + 0.01)
                 warm_chroms.append(perturbed)
+
+            # Skip expensive heuristic re-computation when JSON is provided
+            print("Skipping heuristic re-computation (using JSON solution + perturbations)")
+            print(f"\nGenerated {len(warm_chroms)} warm start chromosomes from JSON")
+            return warm_chroms, best_heuristic_makespan, best_heuristic_chrom, best_heuristic_tours
 
         print("Running heuristics for warm start...")
 
@@ -372,7 +383,8 @@ class VRPRPDSolver:
             'depot': self.instance.depot
         }
         
-        solution_pipes = [mp.Pipe() for _ in range(self.total_workers)]
+        # Use Queue for solutions (unbounded, won't block) and Pipes for candidates (small, bidirectional)
+        solution_queue = mp.Queue()  # All workers share one queue (no blocking!)
         candidate_pipes = [mp.Pipe() for _ in range(self.total_workers)]
         result_queue = mp.Queue()
 
@@ -405,7 +417,7 @@ class VRPRPDSolver:
                 target=gpu_worker,
                 args=(gpu_id, instance_dict, self.pop_per_gpu, self.gens_per_cycle,
                       self.total_cycles, self.allow_mixed, result_queue,
-                      solution_pipes[gpu_id][1], candidate_pipes[gpu_id][0],
+                      solution_queue, candidate_pipes[gpu_id][0],
                       self.use_gp, self.use_gene_injection, ws, mutation_rate,
                       self.elite_size, self.crossover_rate, self.mutation_strength,
                       global_best_fitness, global_best_lock, output_json_path,
@@ -433,7 +445,7 @@ class VRPRPDSolver:
                 target=cpu_worker,
                 args=(cpu_id, instance_dict, self.pop_per_cpu, self.gens_per_cycle,
                       self.total_cycles, self.allow_mixed, result_queue,
-                      solution_pipes[worker_idx][1], candidate_pipes[worker_idx][0],
+                      solution_queue, candidate_pipes[worker_idx][0],
                       self.use_gp, self.use_gene_injection, ws, mutation_rate,
                       self.elite_size, self.crossover_rate, self.mutation_strength,
                       global_best_fitness, global_best_lock, output_json_path)
@@ -444,11 +456,16 @@ class VRPRPDSolver:
         results = []
         
         if self.use_gp:
-            analyzer = GeneticAnalyzer(use_gpu=HAS_CUPY)
+            analyzer = GeneticAnalyzer(
+                use_gpu=HAS_CUPY,
+                use_blocks=self.use_blocks,
+                use_fft=self.use_fft,
+                use_similarity=self.use_similarity
+            )
             gp_cycle = 0
             all_solutions = []
             last_analysis_time = time.time()
-            analysis_interval = 10.0
+            analysis_interval = 5.0  # Reduced from 10s for more frequent GP analysis
             workers_finished = 0
 
             # Track best solution for checkpoints
@@ -517,23 +534,25 @@ class VRPRPDSolver:
                 except:
                     pass
 
-                for worker_idx in range(self.total_workers):
+                # Drain solution queue (non-blocking) - workers can send anytime without blocking!
+                while not solution_queue.empty():
                     try:
-                        if solution_pipes[worker_idx][0].poll(0.01):
-                            data = solution_pipes[worker_idx][0].recv()
-                            solutions = data.get('solutions', [])
-                            all_solutions.extend(solutions)
+                        data = solution_queue.get_nowait()
+                        solutions = data.get('solutions', [])
+                        all_solutions.extend(solutions)
 
-                            # Track best solution for checkpoints
-                            for sol in solutions:
-                                if sol['fitness'] < best_checkpoint_fitness:
-                                    best_checkpoint_fitness = sol['fitness']
-                                    best_checkpoint_solution = sol.copy()
+                        # Track best solution for checkpoints
+                        for sol in solutions:
+                            if sol['fitness'] < best_checkpoint_fitness:
+                                best_checkpoint_fitness = sol['fitness']
+                                best_checkpoint_solution = sol.copy()
                     except:
-                        pass
+                        break  # Queue empty
 
                 current_time = time.time()
-                if (len(all_solutions) >= 50 and
+                # For large instances, trigger with fewer solutions (workers send less to avoid pipe blocking)
+                min_solutions = 30 if self.instance.num_customers > 500 else 50
+                if (len(all_solutions) >= min_solutions and
                     current_time - last_analysis_time >= analysis_interval):
 
                     print(f"\n{'='*50}")
@@ -692,17 +711,7 @@ class VRPRPDSolver:
                 print(f"[Warning] Terminating worker that didn't finish", flush=True)
                 p.terminate()
 
-        # Close all pipes to prevent hanging
-        for parent_conn, child_conn in solution_pipes:
-            try:
-                parent_conn.close()
-            except:
-                pass
-            try:
-                child_conn.close()
-            except:
-                pass
-
+        # Close all pipes and queues to prevent hanging
         for parent_conn, child_conn in candidate_pipes:
             try:
                 parent_conn.close()
@@ -713,10 +722,16 @@ class VRPRPDSolver:
             except:
                 pass
 
-        # Close the result queue
+        # Close the queues
         try:
             result_queue.close()
             result_queue.join_thread()
+        except:
+            pass
+
+        try:
+            solution_queue.close()
+            solution_queue.join_thread()
         except:
             pass
 
