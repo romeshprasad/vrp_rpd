@@ -1,0 +1,792 @@
+Setting random seed to 0
+DEBUG: proc shape: (1000,), agents: 6, resources: 4, n: 1000
+
+======================================================================
+LOADING INITIAL SOLUTION FROM JSON
+======================================================================
+Loaded heuristic solution: Savings with makespan 999289353.00
+File: ./results/heuristics_only/dsj1000/1R20/job_times_5_heuristics.json
+Makespan: 999289353.00
+Status: SUCCESS - Will use as warm start
+======================================================================
+
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 999 customers, 6 agents, k=4
+Heuristic: None
+Genetic Programming: Yes
+Warm Start: Yes
+Gene Injection: Yes
+Workers: 1 GPU + 0 CPU
+Generations: 5000
+======================================================================
+
+Using solution from JSON file as warm start...
+  JSON solution: 999289353.00
+Skipping heuristic re-computation (using JSON solution + perturbations)
+
+Generated 6 warm start chromosomes from JSON
+
+[GP] Starting GP collection loop (timeout: 12975s)...
+[GPU 0] Warm start: 6 chromosomes
+
+*** [GPU 0] NEW GLOBAL BEST: 759497453.00 at gen 0 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen     0 | Best: 759497453.00 | 0.5s
+[GP] gpu_0 first intermediate: 759497453.00 at gen 0
+
+*** [GPU 0] NEW GLOBAL BEST: 540345444.00 at gen 100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   100 | Best: 540345444.00 | 12.6s
+[GP] gpu_0 intermediate update: 540345444.00 at gen 100
+[GP] gpu_0 intermediate update: 505641896.00 at gen 200
+
+*** [GPU 0] NEW GLOBAL BEST: 505641896.00 at gen 200 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   200 | Best: 505641896.00 | 24.8s
+
+*** [GPU 0] NEW GLOBAL BEST: 486572099.00 at gen 300 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   300 | Best: 486572099.00 | 36.9s
+[GP] gpu_0 intermediate update: 486572099.00 at gen 300
+[GP] gpu_0 intermediate update: 476912144.00 at gen 400
+
+==================================================
+GP ANALYSIS - Cycle 1
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 0
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=476519520.00, worst=506017088.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 476519530.00 at gen 400 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   400 | Best: 476519530.00 | 49.1s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=6, Interp=6, Mut=8
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 465699798.00 at gen 500 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   500 | Best: 465699798.00 | 61.4s
+[GPU 0] Gene injection: 20 candidates injected at gen 600 (total so far: 20)
+
+*** [GPU 0] NEW GLOBAL BEST: 456536848.00 at gen 600 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   600 | Best: 456536848.00 | 73.9s
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 476519530.00 at gen 400
+[GP] gpu_0 intermediate update: 465699798.00 at gen 500
+[GP] gpu_0 intermediate update: 456628433.00 at gen 600
+[GP] gpu_0 intermediate update: 456536848.00 at gen 600
+
+*** [GPU 0] NEW GLOBAL BEST: 450488445.00 at gen 700 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   700 | Best: 450488445.00 | 86.0s
+[GP] gpu_0 intermediate update: 450488445.00 at gen 700
+[GP] gpu_0 intermediate update: 444690889.00 at gen 800
+
+==================================================
+GP ANALYSIS - Cycle 2
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 1
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=444658112.00, worst=456705088.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 444658104.00 at gen 800 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   800 | Best: 444658104.00 | 98.2s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=12, Interp=12, Mut=16
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 441577145.00 at gen 900 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   900 | Best: 441577145.00 | 110.1s
+[GPU 0] Gene injection: 20 candidates injected at gen 1000 (total so far: 40)
+
+*** [GPU 0] NEW GLOBAL BEST: 436850223.00 at gen 1000 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1000 | Best: 436850223.00 | 121.9s
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 444658104.00 at gen 800
+[GP] gpu_0 intermediate update: 441577145.00 at gen 900
+[GP] gpu_0 intermediate update: 436850223.00 at gen 1000
+    [Checkpoint] Saved to ./results/warm_start/blocks_only/dsj1000/1R20/job_times_5_seed0_1000.json
+
+*** [GPU 0] NEW GLOBAL BEST: 433904064.00 at gen 1100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1100 | Best: 433904064.00 | 133.7s
+[GP] gpu_0 intermediate update: 433904064.00 at gen 1100
+[GP] gpu_0 intermediate update: 430977238.00 at gen 1200
+
+==================================================
+GP ANALYSIS - Cycle 3
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 2
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=430904640.00, worst=436902016.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 430904631.00 at gen 1200 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1200 | Best: 430904631.00 | 145.3s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=18, Interp=18, Mut=24
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 427038572.00 at gen 1300 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1300 | Best: 427038572.00 | 157.3s
+[GPU 0] Gene injection: 20 candidates injected at gen 1400 (total so far: 60)
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 430904631.00 at gen 1200
+[GP] gpu_0 intermediate update: 427038572.00 at gen 1300
+[GP] gpu_0 intermediate update: 424984634.00 at gen 1400
+
+*** [GPU 0] NEW GLOBAL BEST: 424807711.00 at gen 1400 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1400 | Best: 424807711.00 | 169.5s
+[GP] gpu_0 intermediate update: 424807711.00 at gen 1400
+
+*** [GPU 0] NEW GLOBAL BEST: 422329525.00 at gen 1500 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1500 | Best: 422329525.00 | 181.8s
+[GP] gpu_0 intermediate update: 422329525.00 at gen 1500
+[GP] gpu_0 intermediate update: 418482049.00 at gen 1600
+
+==================================================
+GP ANALYSIS - Cycle 4
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 3
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=418113952.00, worst=424984640.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 418113939.00 at gen 1600 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1600 | Best: 418113939.00 | 194.0s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=24, Interp=24, Mut=32
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 414890466.00 at gen 1700 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1700 | Best: 414890466.00 | 206.5s
+[GPU 0] Gene injection: 20 candidates injected at gen 1800 (total so far: 80)
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 418113939.00 at gen 1600
+[GP] gpu_0 intermediate update: 414890466.00 at gen 1700
+[GP] gpu_0 intermediate update: 412693715.00 at gen 1800
+
+*** [GPU 0] NEW GLOBAL BEST: 412693715.00 at gen 1800 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1800 | Best: 412693715.00 | 218.6s
+
+*** [GPU 0] NEW GLOBAL BEST: 410824704.00 at gen 1900 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  1900 | Best: 410824704.00 | 230.8s
+[GP] gpu_0 intermediate update: 410824704.00 at gen 1900
+[GP] gpu_0 intermediate update: 409516509.00 at gen 2000
+
+==================================================
+GP ANALYSIS - Cycle 5
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 4
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=409516512.00, worst=412693728.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 409516509.00 at gen 2000 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2000 | Best: 409516509.00 | 243.0s
+    [Checkpoint] Saved to ./results/warm_start/blocks_only/dsj1000/1R20/job_times_5_seed0_2000.json
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=30, Interp=30, Mut=40
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 407685263.00 at gen 2100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2100 | Best: 407685263.00 | 255.1s
+[GPU 0] Gene injection: 20 candidates injected at gen 2200 (total so far: 100)
+  -> 20 candidates sent to 1/1 workers
+
+[CHECKPOINT] Saved A.json at gen 1000 (makespan: 409516509.00)
+
+*** [GPU 0] NEW GLOBAL BEST: 405854731.00 at gen 2200 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2200 | Best: 405854731.00 | 267.1s
+[GP] gpu_0 intermediate update: 407685263.00 at gen 2100
+[GP] gpu_0 intermediate update: 405968867.00 at gen 2200
+[GP] gpu_0 intermediate update: 405854731.00 at gen 2200
+
+*** [GPU 0] NEW GLOBAL BEST: 403653625.00 at gen 2300 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2300 | Best: 403653625.00 | 279.3s
+[GP] gpu_0 intermediate update: 403653625.00 at gen 2300
+[GP] gpu_0 intermediate update: 402061497.00 at gen 2400
+
+==================================================
+GP ANALYSIS - Cycle 6
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 5
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=402061504.00, worst=405968864.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 402061497.00 at gen 2400 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2400 | Best: 402061497.00 | 291.8s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=36, Interp=36, Mut=48
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 400622892.00 at gen 2500 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2500 | Best: 400622892.00 | 304.0s
+[GPU 0] Gene injection: 20 candidates injected at gen 2600 (total so far: 120)
+
+*** [GPU 0] NEW GLOBAL BEST: 399415962.00 at gen 2600 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2600 | Best: 399415962.00 | 316.0s
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 400622892.00 at gen 2500
+[GP] gpu_0 intermediate update: 399415962.00 at gen 2600
+
+*** [GPU 0] NEW GLOBAL BEST: 397646925.00 at gen 2700 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2700 | Best: 397646925.00 | 327.9s
+[GP] gpu_0 intermediate update: 397646925.00 at gen 2700
+[GP] gpu_0 intermediate update: 396165409.00 at gen 2800
+
+==================================================
+GP ANALYSIS - Cycle 7
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 6
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=396165408.00, worst=399415968.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 396165409.00 at gen 2800 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2800 | Best: 396165409.00 | 340.2s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=42, Interp=42, Mut=56
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 394756563.00 at gen 2900 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  2900 | Best: 394756563.00 | 352.2s
+[GPU 0] Gene injection: 20 candidates injected at gen 3000 (total so far: 140)
+
+*** [GPU 0] NEW GLOBAL BEST: 393434831.00 at gen 3000 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3000 | Best: 393434831.00 | 364.0s
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 394756563.00 at gen 2900
+[GP] gpu_0 intermediate update: 393434831.00 at gen 3000
+    [Checkpoint] Saved to ./results/warm_start/blocks_only/dsj1000/1R20/job_times_5_seed0_3000.json
+
+*** [GPU 0] NEW GLOBAL BEST: 392151252.00 at gen 3100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3100 | Best: 392151252.00 | 375.9s
+[GP] gpu_0 intermediate update: 392151252.00 at gen 3100
+[GP] gpu_0 intermediate update: 390458618.00 at gen 3200
+
+==================================================
+GP ANALYSIS - Cycle 8
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 7
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=390458624.00, worst=393434816.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 390458618.00 at gen 3200 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3200 | Best: 390458618.00 | 387.8s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=48, Interp=48, Mut=64
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 388737474.00 at gen 3300 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3300 | Best: 388737474.00 | 399.9s
+[GPU 0] Gene injection: 20 candidates injected at gen 3400 (total so far: 160)
+
+*** [GPU 0] NEW GLOBAL BEST: 387770137.00 at gen 3400 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3400 | Best: 387770137.00 | 412.0s
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 388737474.00 at gen 3300
+[GP] gpu_0 intermediate update: 387770137.00 at gen 3400
+
+*** [GPU 0] NEW GLOBAL BEST: 386738121.00 at gen 3500 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3500 | Best: 386738121.00 | 423.8s
+[GP] gpu_0 intermediate update: 386738121.00 at gen 3500
+[GP] gpu_0 intermediate update: 385509458.00 at gen 3600
+
+==================================================
+GP ANALYSIS - Cycle 9
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 8
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=385509472.00, worst=387804704.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 385509458.00 at gen 3600 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3600 | Best: 385509458.00 | 436.0s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=54, Interp=54, Mut=72
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 384703612.00 at gen 3700 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3700 | Best: 384703612.00 | 447.9s
+[GPU 0] Gene injection: 20 candidates injected at gen 3800 (total so far: 180)
+
+*** [GPU 0] NEW GLOBAL BEST: 383565983.00 at gen 3800 ***
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 384703612.00 at gen 3700
+[GP] gpu_0 intermediate update: 383565983.00 at gen 3800
+    Saved to best_solution.json
+
+[GPU 0] Gen  3800 | Best: 383565983.00 | 459.8s
+
+*** [GPU 0] NEW GLOBAL BEST: 382615732.00 at gen 3900 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  3900 | Best: 382615732.00 | 471.8s
+[GP] gpu_0 intermediate update: 382615732.00 at gen 3900
+[GP] gpu_0 intermediate update: 381749322.00 at gen 4000
+
+==================================================
+GP ANALYSIS - Cycle 10
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 9
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=381745664.00, worst=383565984.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 381745655.00 at gen 4000 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4000 | Best: 381745655.00 | 484.1s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=60, Interp=60, Mut=80
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+    [Checkpoint] Saved to ./results/warm_start/blocks_only/dsj1000/1R20/job_times_5_seed0_4000.json
+
+*** [GPU 0] NEW GLOBAL BEST: 381233329.00 at gen 4100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4100 | Best: 381233329.00 | 496.1s
+[GPU 0] Gene injection: 20 candidates injected at gen 4200 (total so far: 200)
+
+*** [GPU 0] NEW GLOBAL BEST: 380739896.00 at gen 4200 ***
+    Saved to best_solution.json
+
+  -> 20 candidates sent to 1/1 workers
+
+[CHECKPOINT] Saved B.json at gen 2000 (makespan: 381745655.00)
+[GPU 0] Gen  4200 | Best: 380739896.00 | 508.1s
+[GP] gpu_0 intermediate update: 381745655.00 at gen 4000
+[GP] gpu_0 intermediate update: 381233329.00 at gen 4100
+[GP] gpu_0 intermediate update: 380739896.00 at gen 4200
+
+*** [GPU 0] NEW GLOBAL BEST: 380412006.00 at gen 4300 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4300 | Best: 380412006.00 | 520.1s
+[GP] gpu_0 intermediate update: 380412006.00 at gen 4300
+[GP] gpu_0 intermediate update: 380306400.00 at gen 4400
+
+==================================================
+GP ANALYSIS - Cycle 11
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 10
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=380306400.00, worst=380739904.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 380306400.00 at gen 4400 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4400 | Best: 380306400.00 | 532.1s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=66, Interp=66, Mut=88
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 379512432.00 at gen 4500 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4500 | Best: 379512432.00 | 544.1s
+[GPU 0] Gene injection: 20 candidates injected at gen 4600 (total so far: 220)
+
+*** [GPU 0] NEW GLOBAL BEST: 378827807.00 at gen 4600 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4600 | Best: 378827807.00 | 556.2s
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 379512432.00 at gen 4500
+[GP] gpu_0 intermediate update: 378827807.00 at gen 4600
+
+*** [GPU 0] NEW GLOBAL BEST: 377546369.00 at gen 4700 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4700 | Best: 377546369.00 | 568.2s
+[GP] gpu_0 intermediate update: 377546369.00 at gen 4700
+[GP] gpu_0 intermediate update: 377278910.00 at gen 4800
+
+==================================================
+GP ANALYSIS - Cycle 12
+  Collected 40 solutions
+==================================================
+
+[GP] ========== GENETIC PROGRAMMING ANALYSIS STARTED ==========
+[GP] Cycle: 11
+[GP] Input: 40 solutions received for analysis
+[GP] Fitness range: best=377278912.00, worst=378827808.00
+[GP] Analysis config: blocks=True, fft=False, similarity=False
+[GP] Starting analysis...
+[GP] Phase 1: Extracting building blocks...
+
+*** [GPU 0] NEW GLOBAL BEST: 377278910.00 at gen 4800 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4800 | Best: 377278910.00 | 580.1s
+[GP] Phase 1 complete: Found 30 building blocks
+[GP] Phase 2: FFT analysis DISABLED
+[GP] Phase 3: Similarity analysis DISABLED
+[GP] ========== GP ANALYSIS COMPLETE ==========
+
+
+[GP] ========== CANDIDATE GENERATION STARTED ==========
+[GP] Generating 20 new candidate solutions
+[GP] Available data: 40 top solutions, 30 building blocks, 0 FFT patterns, 0 similarity patterns
+[GP] Generation strategy: 6 block-based, 6 interpolated, 8 mutated
+[GP] Strategy 1: Creating 6 candidates via building block combination...
+[GP] Strategy 1 complete: 6 block-based candidates created
+[GP] Strategy 2: Creating 6 candidates via solution interpolation...
+[GP] Strategy 2 complete: 6 interpolated candidates created
+[GP] Strategy 3: Creating 8 candidates via guided mutation...
+[GP] Strategy 3 complete: 8 mutated candidates created
+[GP] Total candidates generated: 20
+[GP] Strategy breakdown: Block=72, Interp=72, Mut=96
+[GP] ========== CANDIDATE GENERATION COMPLETE ==========
+
+
+*** [GPU 0] NEW GLOBAL BEST: 376541745.00 at gen 4900 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen  4900 | Best: 376541745.00 | 592.0s
+[GPU 0] Gene injection: 20 candidates injected at gen 5000 (total so far: 240)
+[GPU 0] Evolution complete. Sending final results...
+  -> 20 candidates sent to 1/1 workers
+[GP] gpu_0 intermediate update: 376541745.00 at gen 4900
+[GP] gpu_0 intermediate update: 376041763.00 at gen 5000
+[GP] Worker finished: gpu_0 (best=376041763.00)
+
+[GP] All workers finished. Total GP cycles: 12
+
+[Final Collection] Have 1/1 workers. Waiting up to 120s for remaining...
+
+[Critical] Attempting final result collection before terminating workers...
+
+[Results Summary] Collected 1 results:
+  gpu_0: fitness=376041763.00, intermediate=False, gen=final
+
+======================================================================
+COMPLETE
+======================================================================
+Best: 376041763.00 from gpu_0
+  (Improved 62.4% over heuristic 999289353.00)
+Time: 606.4s
+Total candidates injected: 240
+
+Solution JSON saved to ./results/warm_start/blocks_only/dsj1000/1R20/job_times_5_seed0.json
+HTML Gantt chart saved to: ./results/warm_start/blocks_only/dsj1000/1R20/job_times_5_seed0.html

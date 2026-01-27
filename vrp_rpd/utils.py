@@ -241,9 +241,9 @@ def load_jobs(filepath: str, n: int, agents_override: int = None, resources_over
                         job_time = float(row[1].strip())
 
                         # customer_id is 1-indexed, convert to 0-indexed
-                        node_0idx = customer_id - 1
-                        if 0 <= node_0idx < n:
-                            proc[node_0idx] = job_time
+                        #node_0idx = customer_id - 1
+                        if 0 <= customer_id < n:
+                            proc[customer_id] = job_time
                     except (ValueError, IndexError):
                         continue
 
@@ -275,10 +275,10 @@ def load_jobs(filepath: str, n: int, agents_override: int = None, resources_over
                     parts = line.split()
                     if len(parts) >= 2:
                         try:
-                            node_1idx = int(parts[0])
-                            node_0idx = node_1idx - 1
-                            if 0 <= node_0idx < n:
-                                proc[node_0idx] = float(parts[1])
+                            node_idx = int(parts[0])
+                            #node_0idx = node_1idx - 1
+                            if 0 <= node_idx < n:
+                                proc[node_idx] = float(parts[1])
                         except:
                             pass
                 else:

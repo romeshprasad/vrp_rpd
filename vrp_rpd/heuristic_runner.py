@@ -62,7 +62,7 @@ def timeout(seconds: int):
         signal.signal(signal.SIGALRM, old_handler)
 
 
-def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: str = None):
+def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: str = None, allow_mixed: bool = True):
     """
     Run all heuristics and save ALL results to JSON for comparison.
 
@@ -70,6 +70,7 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
         instance: VRPRPDInstance
         output_path: Path for output JSON file
         html_path: Optional path for HTML Gantt chart
+        allow_mixed: Whether to allow interleaving (default: True)
 
     Returns:
         Best makespan found
@@ -98,7 +99,7 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
 
         # Decode to get tours if not provided
         if tours is None:
-            tours = decode_chromosome(chrom, instance, allow_mixed=False)
+            tours = decode_chromosome(chrom, instance, allow_mixed=allow_mixed)
 
         # First get job times using internal simulate_solution for route details
         job_times, agent_tours, agent_completion_times, customer_assignment = simulate_solution(
@@ -188,7 +189,8 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
         with timeout(HEURISTIC_TIMEOUT):
             chrom, makespan, tours = generate_nearest_neighbor_solution(
                 instance.dist, instance.proc, instance.depot,
-                instance.m, instance.k, instance.num_customers
+                instance.m, instance.k, instance.num_customers,
+                allow_mixed=allow_mixed
             )
             exec_time = time.time() - start_time
             add_solution('Nearest Neighbor', chrom, tours, exec_time)
@@ -204,7 +206,8 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
         with timeout(HEURISTIC_TIMEOUT):
             chrom, makespan, tours = generate_max_regret_solution(
                 instance.dist, instance.proc, instance.depot,
-                instance.m, instance.k, instance.num_customers
+                instance.m, instance.k, instance.num_customers,
+                allow_mixed=allow_mixed
             )
             exec_time = time.time() - start_time
             add_solution('Max Regret', chrom, tours, exec_time)
@@ -220,7 +223,8 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
         with timeout(HEURISTIC_TIMEOUT):
             chrom, makespan, tours = generate_savings_solution(
                 instance.dist, instance.proc, instance.depot,
-                instance.m, instance.k, instance.num_customers
+                instance.m, instance.k, instance.num_customers,
+                allow_mixed=allow_mixed
             )
             exec_time = time.time() - start_time
             add_solution('Savings', chrom, tours, exec_time)
@@ -238,7 +242,8 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
                 chrom, makespan = generate_greedy_defer_solution(
                     instance.dist, instance.proc, instance.depot,
                     instance.m, instance.k, instance.num_customers,
-                    defer_multiplier=mult
+                    defer_multiplier=mult,
+                    allow_mixed=allow_mixed
                 )
                 exec_time = time.time() - start_time
                 add_solution(f'Greedy Defer {mult}x', chrom, exec_time=exec_time)
@@ -259,7 +264,8 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
                 chrom, makespan, tours = generate_2opt_improved_solution(
                     instance.dist, instance.proc, instance.depot,
                     instance.m, instance.k, instance.num_customers,
-                    base_heuristic=base
+                    base_heuristic=base,
+                    allow_mixed=allow_mixed
                 )
                 exec_time = time.time() - start_time
                 name = f"2-opt ({base.replace('_', ' ').title()})"
@@ -319,7 +325,7 @@ def run_heuristics_only(instance: VRPRPDInstance, output_path: str, html_path: s
             'makespan': best_makespan,
             'solve_time': 0
         }
-        generate_html_gantt(result_for_gantt, instance, html_path, title=f"Heuristic Solution ({best_heuristic})")
+        generate_html_gantt(result_for_gantt, instance, html_path, title=f"Heuristic Solution ({best_heuristic})", allow_mixed=allow_mixed)
         print(f"Saved Gantt chart to: {html_path}")
 
     print("\n" + "=" * 70)

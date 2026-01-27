@@ -1,0 +1,68 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/gr202/gr202.tsp
+  Jobs: datasets/gr202/2x/job_times.csv
+  WARNING: Depot mismatch (TSP: 202, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 201
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/gr202/2x/gr202_heuristics.json
+  Heuristic: Savings
+  Makespan: 197321.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 201, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W3 done: makespan=197321.00, cross=0, t=301.6s
+  W0 done: makespan=197321.00, cross=0, t=300.6s
+  W1 done: makespan=197321.00, cross=0, t=300.3s
+  W2 done: makespan=197321.00, cross=0, t=300.5s
+
+------------------------------------------------------------
+ALNS Final: 197321.00
+Cross-vehicle: 0
+Time: 301.6s
+============================================================
+
+
+Solution saved to: results/alns_ws/gr202/2x/gr202_alns.json
+HTML Gantt chart saved to: results/alns_ws/gr202/2x/gr202_alns.html
+Gantt chart saved to: results/alns_ws/gr202/2x/gr202_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  197321.00 (Savings)
+ALNS makespan:        197321.00
+Improvement:          0.00 (0.00%)
+Solve time:           301.61s
+Cross-vehicle:        0
+======================================================================
+

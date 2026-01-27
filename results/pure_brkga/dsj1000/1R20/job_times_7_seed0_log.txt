@@ -1,0 +1,41 @@
+Setting random seed to 0
+DEBUG: proc shape: (1000,), agents: 6, resources: 4, n: 1000
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 999 customers, 6 agents, k=4
+Heuristic: None
+Genetic Programming: No
+Warm Start: No
+Gene Injection: No
+Workers: 1 GPU + 0 CPU
+Generations: 5000
+======================================================================
+
+
+[No GP] Waiting for workers to complete evolution (timeout: 12975s)...
+
+*** [GPU 0] NEW GLOBAL BEST: 784529861.00 at gen 0 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen     0 | Best: 784529861.00 | 0.4s
+Traceback (most recent call last):
+  File "/home/romesh/vrp_rpd/main.py", line 378, in <module>
+Process Process-1:
+    main()
+  File "/home/romesh/vrp_rpd/main.py", line 247, in main
+    result = solver.solve()
+  File "/home/romesh/vrp_rpd/vrp_rpd/solver.py", line 653, in solve
+    time.sleep(5.0)  # Check every 5 seconds instead of 1
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/romesh/vrp_rpd/vrp_rpd/workers.py", line 79, in gpu_worker
+    island.evolve_generation()
+  File "/home/romesh/vrp_rpd/vrp_rpd/islands.py", line 140, in evolve_generation
+    p1 = self.population[t1[self.fitness[t1].argmin()]].clone()
+KeyboardInterrupt

@@ -1,0 +1,75 @@
+Setting random seed to 0
+DEBUG: proc shape: (783,), agents: 6, resources: 4, n: 783
+
+======================================================================
+LOADING INITIAL SOLUTION FROM JSON
+======================================================================
+Loaded heuristic solution: Savings with makespan 367830.00
+File: ./results/heuristics_only/rat783/1R20/job_times_2_heuristics.json
+Makespan: 367830.00
+Status: SUCCESS - Will use as warm start
+======================================================================
+
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 782 customers, 6 agents, k=4
+Heuristic: None
+Genetic Programming: No
+Warm Start: Yes
+Gene Injection: No
+Workers: 1 GPU + 0 CPU
+Generations: 512
+======================================================================
+
+Using solution from JSON file as warm start...
+  JSON solution: 367830.00
+Skipping heuristic re-computation (using JSON solution + perturbations)
+
+Generated 6 warm start chromosomes from JSON
+
+[No GP] Waiting for workers to complete evolution (timeout: 1800s)...
+[GPU 0] Warm start: 6 chromosomes
+
+*** [GPU 0] NEW GLOBAL BEST: 251696.00 at gen 0 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen     0 | Best: 251696.00 | 0.6s
+
+*** [GPU 0] NEW GLOBAL BEST: 174701.00 at gen 100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   100 | Best: 174701.00 | 15.9s
+    [Checkpoint] Saved to ./results/warm_start_no_gene/rat783/1R20/job_times_2_seed0_100.json
+
+*** [GPU 0] NEW GLOBAL BEST: 162058.00 at gen 200 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   200 | Best: 162058.00 | 31.2s
+    [Checkpoint] Saved to ./results/warm_start_no_gene/rat783/1R20/job_times_2_seed0_200.json
+
+*** [GPU 0] NEW GLOBAL BEST: 156928.00 at gen 300 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   300 | Best: 156928.00 | 45.4s
+    [Checkpoint] Saved to ./results/warm_start_no_gene/rat783/1R20/job_times_2_seed0_300.json
+[GPU 0] Evolution complete. Sending final results...
+[No GP] Worker finished: gpu_0 (best=152978.00)
+
+[Final Collection] Have 1/1 workers. Waiting up to 120s for remaining...
+
+[Critical] Attempting final result collection before terminating workers...
+
+[Results Summary] Collected 1 results:
+  gpu_0: fitness=152978.00, intermediate=False, gen=final
+
+======================================================================
+COMPLETE
+======================================================================
+Best: 152978.00 from gpu_0
+  (Improved 58.4% over heuristic 367830.00)
+Time: 62.5s
+
+Solution JSON saved to ./results/warm_start_no_gene/rat783/1R20/job_times_2_seed0.json
+HTML Gantt chart saved to: ./results/warm_start_no_gene/rat783/1R20/job_times_2_seed0.html

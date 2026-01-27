@@ -1,0 +1,68 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/gr21/gr21.tsp
+  Jobs: datasets/gr21/5x/job_times.csv
+  WARNING: Depot mismatch (TSP: 21, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 20
+  Agents: 3
+  Capacity: 5
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/gr21/5x/gr21_heuristics.json
+  Heuristic: Greedy Defer 5.0x
+  Makespan: 7736.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 20, Vehicles: 3, Capacity: 5
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W3 done: makespan=7736.00, cross=8, t=2.1s
+  W2 done: makespan=7736.00, cross=8, t=2.6s
+  W1 done: makespan=7736.00, cross=8, t=2.2s
+  W0 done: makespan=7736.00, cross=8, t=2.2s
+
+------------------------------------------------------------
+ALNS Final: 7736.00
+Cross-vehicle: 8
+Time: 2.7s
+============================================================
+
+
+Solution saved to: results/alns_ws/gr21/5x/gr21_alns.json
+HTML Gantt chart saved to: results/alns_ws/gr21/5x/gr21_alns.html
+Gantt chart saved to: results/alns_ws/gr21/5x/gr21_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  7736.00 (Greedy Defer 5.0x)
+ALNS makespan:        7736.00
+Improvement:          0.00 (0.00%)
+Solve time:           2.68s
+Cross-vehicle:        8
+======================================================================
+

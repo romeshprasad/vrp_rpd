@@ -20,13 +20,17 @@ def generate_nearest_neighbor_solution(
     depot: int,
     m: int,
     k: int,
-    num_customers: int
+    num_customers: int,
+    allow_mixed: bool = True
 ) -> Tuple[np.ndarray, float, Dict]:
     """
     Heuristic 1: Nearest Neighbor
 
     Greedy construction prioritizing shortest travel distance.
     Each step picks the nearest unvisited customer that can be served.
+
+    Args:
+        allow_mixed: If False, forces same agent for pickup and dropoff (no interleaving)
 
     Returns: (chromosome, makespan, tours)
     """
@@ -82,6 +86,13 @@ def generate_nearest_neighbor_solution(
                 for c_idx in range(num_customers):
                     if c_idx not in dropped or c_idx in picked:
                         continue
+
+                    # If allow_mixed=False, only the dropoff agent can do pickup
+                    if not allow_mixed:
+                        dropper, _ = dropped[c_idx]
+                        if a != dropper:
+                            continue
+
                     cust_loc = customers[c_idx]
                     travel = dist[loc][cust_loc]
 
@@ -98,12 +109,20 @@ def generate_nearest_neighbor_solution(
             # First, try to pickup any ready customers
             for c_idx in range(num_customers):
                 if c_idx in dropped and c_idx not in picked:
-                    for a in range(m):
-                        if agent_deployed[a] < k:
-                            best_action = ('P', a, c_idx)
+                    dropper, _ = dropped[c_idx]
+                    if not allow_mixed:
+                        # Must use same agent for pickup
+                        if agent_deployed[dropper] < k:
+                            best_action = ('P', dropper, c_idx)
                             break
-                    if best_action:
-                        break
+                    else:
+                        # Can use any agent
+                        for a in range(m):
+                            if agent_deployed[a] < k:
+                                best_action = ('P', a, c_idx)
+                                break
+                        if best_action:
+                            break
 
             # If still none, force a dropoff
             if best_action is None:
@@ -143,7 +162,7 @@ def generate_nearest_neighbor_solution(
 
             agent_time[a] = actual_pickup
             agent_loc[a] = cust_loc
-            agent_deployed[dropper] += 1  # FIXED: Pickup returns a resource to the dropper
+            agent_deployed[a] += 1  # FIXED: Pickup returns a resource to the picker (agent a)
             picked.add(c_idx)
             tours[a].append((cust_loc, 'P', c_idx))
             pick_order[c_idx] = agent_event_count[a]
@@ -184,7 +203,8 @@ def generate_max_regret_solution(
     depot: int,
     m: int,
     k: int,
-    num_customers: int
+    num_customers: int,
+    allow_mixed: bool = True
 ) -> Tuple[np.ndarray, float, Dict]:
     """
     Heuristic 3: Max Regret
@@ -192,6 +212,9 @@ def generate_max_regret_solution(
     Insertion heuristic that prioritizes customers with highest "regret" -
     the difference between best and second-best insertion positions.
     This avoids committing to customers that have many good options.
+
+    Args:
+        allow_mixed: If False, forces same agent for pickup and dropoff (no interleaving)
 
     Returns: (chromosome, makespan, tours)
     """
@@ -322,12 +345,28 @@ def generate_max_regret_solution(
         unassigned.discard(c_idx)
 
     # Insert pickups after all dropoffs
+    # First, build a map of which agent dropped each customer
+    customer_dropper = {}
+    for a in range(m):
+        for c_idx, op in agent_tours[a]:
+            if op == 'D':
+                customer_dropper[c_idx] = a
+
     for c_idx in dropped_set:
         best_cost = float('inf')
-        best_agent = 0
+        best_agent = None
         best_pos = 0
 
-        for a in range(m):
+        # Determine which agents to consider for pickup
+        if allow_mixed:
+            # Can use any agent
+            agents_to_try = range(m)
+        else:
+            # Must use same agent that did dropoff
+            dropper = customer_dropper.get(c_idx, 0)
+            agents_to_try = [dropper]
+
+        for a in agents_to_try:
             for pos in range(len(agent_tours[a]) + 1):
                 cost = compute_insertion_cost(c_idx, a, pos, 'P', agent_tours)
                 if cost < best_cost:
@@ -335,7 +374,23 @@ def generate_max_regret_solution(
                     best_agent = a
                     best_pos = pos
 
-        agent_tours[best_agent].insert(best_pos, (c_idx, 'P'))
+        # If no valid position found, force insert at end of dropper's tour (non-interleaved case)
+        if best_agent is None:
+            if allow_mixed:
+                # Try any agent with capacity
+                for a in range(m):
+                    if len(agent_tours[a]) > 0:
+                        best_agent = a
+                        best_pos = len(agent_tours[a])
+                        break
+            else:
+                # Must use dropper agent
+                dropper = customer_dropper.get(c_idx, 0)
+                best_agent = dropper
+                best_pos = len(agent_tours[dropper])
+
+        if best_agent is not None:
+            agent_tours[best_agent].insert(best_pos, (c_idx, 'P'))
 
     # Convert to simulation format and compute final makespan
     # Use PER-AGENT position-based keys for proper GA compatibility
@@ -388,11 +443,15 @@ def generate_greedy_defer_solution(
     m: int,
     k: int,
     num_customers: int,
-    defer_multiplier: float = 10.0
+    defer_multiplier: float = 10.0,
+    allow_mixed: bool = True
 ) -> Tuple[np.ndarray, float]:
     """
     Greedy solution with defer penalty (from BRKGA).
     Prioritizes dropoffs by adding penalty to pickups.
+
+    Args:
+        allow_mixed: If False, forces same agent for pickup and dropoff (no interleaving)
 
     Returns: (chromosome, makespan)
     """
@@ -445,8 +504,14 @@ def generate_greedy_defer_solution(
                 for c_idx in range(num_customers):
                     if c_idx not in dropped or c_idx in picked:
                         continue
-                    cust_loc = customers[c_idx]
+
                     dropper, ready_time = dropped[c_idx]
+
+                    # If allow_mixed=False, only the dropoff agent can do pickup
+                    if not allow_mixed and a != dropper:
+                        continue
+
+                    cust_loc = customers[c_idx]
                     travel = dist[loc][cust_loc]
                     arrival = time + travel
                     actual_pickup = max(arrival, ready_time)
@@ -524,12 +589,16 @@ def generate_savings_solution(
     depot: int,
     m: int,
     k: int,
-    num_customers: int
+    num_customers: int,
+    allow_mixed: bool = True
 ) -> Tuple[np.ndarray, float, Dict]:
     """
     Heuristic: Clarke-Wright Savings adapted for VRP-RPD
 
     Computes savings from merging routes and greedily assigns customers.
+
+    Args:
+        allow_mixed: If False, forces same agent for pickup and dropoff (no interleaving)
 
     Returns: (chromosome, makespan, tours)
     """
@@ -614,12 +683,23 @@ def generate_savings_solution(
                 if c_idx in picked:
                     continue
                 dropper = dropped[c_idx]
-                if dropper == a or agent_available[dropper] < k:
-                    cust_loc = customers[c_idx]
-                    tours[a].append((cust_loc, 'P', c_idx))
-                    agent_available[dropper] += 1
-                    picked.add(c_idx)
-                    break
+
+                # If allow_mixed=False, only dropper can do pickup
+                if not allow_mixed:
+                    if a == dropper and agent_available[a] < k:
+                        cust_loc = customers[c_idx]
+                        tours[a].append((cust_loc, 'P', c_idx))
+                        agent_available[a] += 1
+                        picked.add(c_idx)
+                        break
+                else:
+                    # Allow any agent to pick up (check if picker has capacity)
+                    if agent_available[a] < k:
+                        cust_loc = customers[c_idx]
+                        tours[a].append((cust_loc, 'P', c_idx))
+                        agent_available[a] += 1
+                        picked.add(c_idx)
+                        break
 
             # Do more dropoffs if we have capacity
             for c_idx in remaining[:]:
@@ -645,12 +725,21 @@ def generate_savings_solution(
 
     for c_idx in unassigned_p:
         dropper = dropped[c_idx]
-        for a in range(m):
+
+        # If allow_mixed=False, only dropper can do pickup
+        if not allow_mixed:
             cust_loc = customers[c_idx]
-            tours[a].append((cust_loc, 'P', c_idx))
+            tours[dropper].append((cust_loc, 'P', c_idx))
             agent_available[dropper] += 1
             picked.add(c_idx)
-            break
+        else:
+            # Allow any agent to pick up
+            for a in range(m):
+                cust_loc = customers[c_idx]
+                tours[a].append((cust_loc, 'P', c_idx))
+                agent_available[a] += 1
+                picked.add(c_idx)
+                break
 
     # Compute makespan
     makespan = compute_makespan_from_tours(tours, dist, proc, depot, m, k, customers)
@@ -911,10 +1000,14 @@ def generate_2opt_improved_solution(
     m: int,
     k: int,
     num_customers: int,
-    base_heuristic: str = 'nearest_neighbor'
+    base_heuristic: str = 'nearest_neighbor',
+    allow_mixed: bool = True
 ) -> Tuple[np.ndarray, float, Dict]:
     """
     Generate a solution using a base heuristic, then improve with 2-opt and other local search.
+
+    Args:
+        allow_mixed: If False, forces same agent for pickup and dropoff (no interleaving)
 
     Returns: (chromosome, makespan, tours)
     """
@@ -928,11 +1021,11 @@ def generate_2opt_improved_solution(
 
     # Get base solution
     if base_heuristic == 'max_regret':
-        _, base_makespan, tours = generate_max_regret_solution(dist, proc, depot, m, k, num_customers)
+        _, base_makespan, tours = generate_max_regret_solution(dist, proc, depot, m, k, num_customers, allow_mixed=allow_mixed)
     elif base_heuristic == 'savings':
-        _, base_makespan, tours = generate_savings_solution(dist, proc, depot, m, k, num_customers)
+        _, base_makespan, tours = generate_savings_solution(dist, proc, depot, m, k, num_customers, allow_mixed=allow_mixed)
     else:  # nearest_neighbor
-        _, base_makespan, tours = generate_nearest_neighbor_solution(dist, proc, depot, m, k, num_customers)
+        _, base_makespan, tours = generate_nearest_neighbor_solution(dist, proc, depot, m, k, num_customers, allow_mixed=allow_mixed)
 
     # Apply local search improvements
     tours, makespan = apply_2opt_improvement(tours, dist, proc, depot, m, k, customers)

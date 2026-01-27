@@ -1,0 +1,102 @@
+Setting random seed to 0
+DEBUG: proc shape: (17,), agents: 3, resources: 5, n: 17
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 16 customers, 3 agents, k=5
+Heuristic: None
+Genetic Programming: No
+Warm Start: No
+Gene Injection: No
+Workers: 1 GPU + 0 CPU
+Generations: 5000
+======================================================================
+
+
+[No GP] Waiting for workers to complete evolution (timeout: 12975s)...
+
+*** [GPU 0] NEW GLOBAL BEST: 9163.00 at gen 0 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen     0 | Best:  9163.00 | 0.5s
+
+*** [GPU 0] NEW GLOBAL BEST: 7212.00 at gen 100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   100 | Best:  7212.00 | 10.6s
+[GPU 0] Gen   200 | Best:  7212.00 | 21.1s
+[GPU 0] Gen   300 | Best:  7212.00 | 32.4s
+[GPU 0] Gen   400 | Best:  7212.00 | 44.0s
+[GPU 0] Gen   500 | Best:  7212.00 | 56.0s
+[No GP] 60s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen   600 | Best:  7212.00 | 68.0s
+[GPU 0] Gen   700 | Best:  7212.00 | 80.0s
+[GPU 0] Gen   800 | Best:  7212.00 | 92.4s
+[GPU 0] Gen   900 | Best:  7212.00 | 104.8s
+[GPU 0] Gen  1000 | Best:  7212.00 | 117.2s
+    [Checkpoint] Saved to ./results/pure_brkga/gr17/1R20/job_times_3_seed0_1000.json
+[No GP] 120s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  1100 | Best:  7212.00 | 129.1s
+[GPU 0] Gen  1200 | Best:  7212.00 | 141.2s
+[GPU 0] Gen  1300 | Best:  7212.00 | 153.4s
+[GPU 0] Gen  1400 | Best:  7212.00 | 165.5s
+[GPU 0] Gen  1500 | Best:  7212.00 | 177.7s
+[No GP] 180s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  1600 | Best:  7212.00 | 190.0s
+[GPU 0] Gen  1700 | Best:  7212.00 | 202.5s
+[GPU 0] Gen  1800 | Best:  7212.00 | 214.9s
+[GPU 0] Gen  1900 | Best:  7212.00 | 227.1s
+[No GP] 240s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  2000 | Best:  7212.00 | 239.5s
+    [Checkpoint] Saved to ./results/pure_brkga/gr17/1R20/job_times_3_seed0_2000.json
+[GPU 0] Gen  2100 | Best:  7212.00 | 250.4s
+[GPU 0] Gen  2200 | Best:  7212.00 | 260.8s
+[GPU 0] Gen  2300 | Best:  7212.00 | 271.7s
+[GPU 0] Gen  2400 | Best:  7212.00 | 282.0s
+[GPU 0] Gen  2500 | Best:  7212.00 | 292.4s
+[No GP] 300s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  2600 | Best:  7212.00 | 303.0s
+[GPU 0] Gen  2700 | Best:  7212.00 | 313.7s
+[GPU 0] Gen  2800 | Best:  7212.00 | 324.4s
+[GPU 0] Gen  2900 | Best:  7212.00 | 334.9s
+[GPU 0] Gen  3000 | Best:  7212.00 | 345.4s
+    [Checkpoint] Saved to ./results/pure_brkga/gr17/1R20/job_times_3_seed0_3000.json
+[GPU 0] Gen  3100 | Best:  7212.00 | 355.9s
+[No GP] 360s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  3200 | Best:  7212.00 | 366.2s
+[GPU 0] Gen  3300 | Best:  7212.00 | 376.9s
+[GPU 0] Gen  3400 | Best:  7212.00 | 387.4s
+[GPU 0] Gen  3500 | Best:  7212.00 | 397.8s
+[GPU 0] Gen  3600 | Best:  7212.00 | 408.2s
+[No GP] 420s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  3700 | Best:  7212.00 | 418.9s
+[GPU 0] Gen  3800 | Best:  7212.00 | 429.3s
+[GPU 0] Gen  3900 | Best:  7212.00 | 439.7s
+[GPU 0] Gen  4000 | Best:  7212.00 | 450.0s
+    [Checkpoint] Saved to ./results/pure_brkga/gr17/1R20/job_times_3_seed0_4000.json
+[GPU 0] Gen  4100 | Best:  7212.00 | 460.3s
+[GPU 0] Gen  4200 | Best:  7212.00 | 471.0s
+[No GP] 480s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen  4300 | Best:  7212.00 | 481.4s
+[GPU 0] Gen  4400 | Best:  7212.00 | 491.7s
+[GPU 0] Gen  4500 | Best:  7212.00 | 502.2s
+Traceback (most recent call last):
+  File "/home/romesh/vrp_rpd/main.py", line 378, in <module>
+Process Process-1:
+    main()
+  File "/home/romesh/vrp_rpd/main.py", line 247, in main
+    result = solver.solve()
+  File "/home/romesh/vrp_rpd/vrp_rpd/solver.py", line 653, in solve
+    time.sleep(5.0)  # Check every 5 seconds instead of 1
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/romesh/vrp_rpd/vrp_rpd/workers.py", line 79, in gpu_worker
+    island.evolve_generation()
+  File "/home/romesh/vrp_rpd/vrp_rpd/islands.py", line 147, in evolve_generation
+    child = torch.where(mask.unsqueeze(1).expand(-1, 4), p1, p2)
+KeyboardInterrupt

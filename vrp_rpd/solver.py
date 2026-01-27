@@ -149,7 +149,8 @@ class VRPRPDSolver:
         try:
             chrom, makespan, tours = generate_nearest_neighbor_solution(
                 self.instance.dist, self.instance.proc, self.instance.depot,
-                self.instance.m, self.instance.k, self.instance.num_customers
+                self.instance.m, self.instance.k, self.instance.num_customers,
+                allow_mixed=self.allow_mixed
             )
             decoder_makespan = compute_makespan_fast(chrom, self.instance, self.allow_mixed)
             print(f"  Nearest Neighbor: {decoder_makespan:.2f}")
@@ -167,7 +168,8 @@ class VRPRPDSolver:
         try:
             chrom, makespan, tours = generate_max_regret_solution(
                 self.instance.dist, self.instance.proc, self.instance.depot,
-                self.instance.m, self.instance.k, self.instance.num_customers
+                self.instance.m, self.instance.k, self.instance.num_customers,
+                allow_mixed=self.allow_mixed
             )
             decoder_makespan = compute_makespan_fast(chrom, self.instance, self.allow_mixed)
             print(f"  Max Regret: {decoder_makespan:.2f}")
@@ -185,7 +187,8 @@ class VRPRPDSolver:
         try:
             chrom, makespan, tours = generate_savings_solution(
                 self.instance.dist, self.instance.proc, self.instance.depot,
-                self.instance.m, self.instance.k, self.instance.num_customers
+                self.instance.m, self.instance.k, self.instance.num_customers,
+                allow_mixed=self.allow_mixed
             )
             decoder_makespan = compute_makespan_fast(chrom, self.instance, self.allow_mixed)
             print(f"  Savings: {decoder_makespan:.2f}")
@@ -206,7 +209,8 @@ class VRPRPDSolver:
                     chrom, makespan = generate_greedy_defer_solution(
                         self.instance.dist, self.instance.proc, self.instance.depot,
                         self.instance.m, self.instance.k, self.instance.num_customers,
-                        defer_multiplier=mult
+                        defer_multiplier=mult,
+                        allow_mixed=self.allow_mixed
                     )
                     name = f"Greedy Defer {mult}x"
                     print(f"  {name}: {makespan:.2f}")
@@ -234,7 +238,8 @@ class VRPRPDSolver:
             chrom, makespan, tours = generate_2opt_improved_solution(
                 self.instance.dist, self.instance.proc, self.instance.depot,
                 self.instance.m, self.instance.k, self.instance.num_customers,
-                base_heuristic='nearest_neighbor'
+                base_heuristic='nearest_neighbor',
+                allow_mixed=self.allow_mixed
             )
             name = "2-opt (NN)"
             decoder_makespan = compute_makespan_fast(chrom, self.instance, self.allow_mixed)
@@ -301,7 +306,7 @@ class VRPRPDSolver:
         checkpoint_filename = f"{self.checkpoint_prefix}{checkpoint_letter}.json"
 
         # Decode and simulate solution
-        tours = decode_chromosome(best_chrom, self.instance, allow_mixed=True)
+        tours = decode_chromosome(best_chrom, self.instance, allow_mixed=self.allow_mixed)
         job_times, agent_tours, agent_completion_times, customer_assignment = simulate_solution(
             tours, self.instance
         )
@@ -473,8 +478,9 @@ class VRPRPDSolver:
             best_checkpoint_fitness = float('inf')
 
             # Calculate expected runtime with timeout buffer
-            expected_runtime = (self.total_generations / 100) * 5  # Rough estimate: 5 seconds per 100 generations
-            max_runtime = max(300, expected_runtime * 3)  # At least 5 minutes, or 3x expected
+            # Updated estimate based on actual performance: ~173s per 100 generations for 10k population
+            expected_runtime = (self.total_generations / 100) * 173  # Realistic estimate
+            max_runtime = max(1800, expected_runtime * 1.5)  # At least 30 minutes, or 1.5x expected
             gp_start_time = time.time()
 
             print(f"\n[GP] Starting GP collection loop (timeout: {max_runtime:.0f}s)...", flush=True)
@@ -597,8 +603,9 @@ class VRPRPDSolver:
             print(f"\n[GP] All workers finished. Total GP cycles: {gp_cycle}", flush=True)
         else:
             # Calculate expected runtime with timeout buffer
-            expected_runtime = (self.total_generations / 100) * 5  # Rough estimate: 5 seconds per 100 generations
-            max_runtime = max(300, expected_runtime * 3)  # At least 5 minutes, or 3x expected
+            # Updated estimate based on actual performance: ~173s per 100 generations for 10k population
+            expected_runtime = (self.total_generations / 100) * 173  # Realistic estimate
+            max_runtime = max(1800, expected_runtime * 1.5)  # At least 30 minutes, or 1.5x expected
             no_gp_start_time = time.time()
             workers_finished = 0
             last_status_time = 0

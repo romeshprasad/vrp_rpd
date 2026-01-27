@@ -1,0 +1,79 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/gr17/gr17.tsp
+  Jobs: datasets/gr17/base/job_times.csv
+  WARNING: Depot mismatch (TSP: 17, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 16
+  Agents: 3
+  Capacity: 5
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/gr17/base/gr17_heuristics.json
+  Heuristic: Greedy Defer 5.0x
+  Makespan: 2738.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 16, Vehicles: 3, Capacity: 5
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W2 iter 1: best=2237.00, cross=5, t=0.0s
+  W2 iter 6: best=2020.00, cross=5, t=0.0s
+  W2 iter 55: best=2004.00, cross=3, t=0.1s
+  W2 done: makespan=2004.00, cross=3, t=1.8s
+  W3 iter 4: best=2635.00, cross=6, t=0.0s
+  W3 iter 6: best=2012.00, cross=6, t=0.0s
+  W3 iter 7: best=1978.00, cross=6, t=0.0s
+  W3 done: makespan=1978.00, cross=6, t=3.0s
+  W0 iter 1: best=2463.00, cross=5, t=0.0s
+  W0 iter 847: best=2377.00, cross=3, t=1.8s
+  W0 done: makespan=2377.00, cross=3, t=2.9s
+  W1 iter 0: best=2682.00, cross=5, t=0.0s
+  W1 iter 1: best=2509.00, cross=4, t=0.0s
+  W1 iter 8: best=2199.00, cross=2, t=0.0s
+  W1 done: makespan=2199.00, cross=2, t=7.1s
+
+------------------------------------------------------------
+ALNS Final: 1978.00
+Cross-vehicle: 6
+Time: 7.1s
+============================================================
+
+
+Solution saved to: results/alns_ws/gr17/base/gr17_alns.json
+HTML Gantt chart saved to: results/alns_ws/gr17/base/gr17_alns.html
+Gantt chart saved to: results/alns_ws/gr17/base/gr17_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  2738.00 (Greedy Defer 5.0x)
+ALNS makespan:        1978.00
+Improvement:          760.00 (27.76%)
+Solve time:           7.14s
+Cross-vehicle:        6
+======================================================================
+

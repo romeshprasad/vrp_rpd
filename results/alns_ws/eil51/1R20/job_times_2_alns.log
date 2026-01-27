@@ -1,0 +1,75 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/eil51/eil51.tsp
+  Jobs: datasets/eil51/1R20/job_times_2.csv
+  WARNING: Depot mismatch (TSP: 51, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 50
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/eil51/1R20/job_times_2_heuristics.json
+  Heuristic: Max Regret
+  Makespan: 3314.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 50, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W3 done: makespan=3485.00, cross=41, t=100.3s
+  W0 iter 5: best=2956.00, cross=27, t=0.4s
+  W0 done: makespan=2956.00, cross=27, t=84.0s
+  W2 iter 7: best=3324.00, cross=36, t=0.4s
+  W2 iter 19: best=3205.00, cross=26, t=1.2s
+  W2 iter 61: best=3069.00, cross=24, t=3.4s
+  W2 iter 68: best=2863.00, cross=23, t=3.9s
+  W2 iter 69: best=2719.00, cross=23, t=3.9s
+  W2 done: makespan=2719.00, cross=23, t=35.3s
+  W1 iter 1: best=2776.00, cross=35, t=0.1s
+  W1 done: makespan=2776.00, cross=35, t=44.9s
+
+------------------------------------------------------------
+ALNS Final: 2719.00
+Cross-vehicle: 23
+Time: 100.3s
+============================================================
+
+
+Solution saved to: results/alns_ws/eil51/1R20/job_times_2_alns.json
+HTML Gantt chart saved to: results/alns_ws/eil51/1R20/job_times_2_alns.html
+Gantt chart saved to: results/alns_ws/eil51/1R20/job_times_2_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  3314.00 (Max Regret)
+ALNS makespan:        2719.00
+Improvement:          595.00 (17.95%)
+Solve time:           100.33s
+Cross-vehicle:        23
+======================================================================
+

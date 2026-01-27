@@ -19,7 +19,8 @@ def generate_html_gantt(
     result: Dict,
     instance: VRPRPDInstance,
     output_path: str,
-    title: str = "BRKGA-GP Solution"
+    title: str = "BRKGA-GP Solution",
+    allow_mixed: bool = True
 ):
     """Generate HTML Gantt chart from solver result."""
     if result.get('best_chromosome') is None:
@@ -30,7 +31,7 @@ def generate_html_gantt(
     makespan = result['makespan']
     solve_time = result.get('solve_time', 0)
 
-    tours = decode_chromosome(chrom, instance, allow_mixed=True)
+    tours = decode_chromosome(chrom, instance, allow_mixed=allow_mixed)
     job_times, agent_tours, agent_completion_times, customer_assignment = simulate_solution(
         tours, instance
     )

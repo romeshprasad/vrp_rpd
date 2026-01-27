@@ -30,7 +30,6 @@ def set_seed(seed: int):
         pass
 
 
-
 from vrp_rpd import (
     VRPRPDInstance,
     VRPRPDSolver,
@@ -179,7 +178,7 @@ Examples:
         heuristic_output = args.output if args.output else f"{jobs_basename}H.json"
         html_output = args.output_html if args.output_html != 'gantt.html' else f"{jobs_basename}H.html"
 
-        run_heuristics_only(instance, heuristic_output, html_output)
+        run_heuristics_only(instance, heuristic_output, html_output, allow_mixed=args.allow_mixed)
         return
 
     # Load JSON solution if provided
@@ -255,7 +254,7 @@ Examples:
     # Always save solution JSON with useful information
     if result.get('makespan', float('inf')) < float('inf') and result.get('best_chromosome') is not None:
         chrom = result['best_chromosome']
-        tours = decode_chromosome(chrom, instance, args.allow_mixed)
+        tours = decode_chromosome(chrom, instance, allow_mixed=args.allow_mixed)
         job_times, agent_tours, agent_completion_times, customer_assignment = simulate_solution(
             tours, instance
         )
@@ -371,7 +370,8 @@ Examples:
             result=result,
             instance=instance,
             output_path=args.output_html,
-            title=f"BRKGA-GP Solution (Makespan: {result['makespan']:.1f})"
+            title=f"BRKGA-GP Solution (Makespan: {result['makespan']:.1f})",
+            allow_mixed=args.allow_mixed
         )
 
 if __name__ == '__main__':

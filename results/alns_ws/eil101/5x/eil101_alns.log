@@ -1,0 +1,68 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/eil101/eil101.tsp
+  Jobs: datasets/eil101/5x/job_times.csv
+  WARNING: Depot mismatch (TSP: 101, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 100
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/eil101/5x/eil101_heuristics.json
+  Heuristic: Savings
+  Makespan: 3449.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 100, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W1 done: makespan=3449.00, cross=0, t=129.5s
+  W0 done: makespan=3449.00, cross=0, t=132.3s
+  W3 done: makespan=3449.00, cross=0, t=130.9s
+  W2 done: makespan=3449.00, cross=0, t=128.6s
+
+------------------------------------------------------------
+ALNS Final: 3449.00
+Cross-vehicle: 0
+Time: 132.4s
+============================================================
+
+
+Solution saved to: results/alns_ws/eil101/5x/eil101_alns.json
+HTML Gantt chart saved to: results/alns_ws/eil101/5x/eil101_alns.html
+Gantt chart saved to: results/alns_ws/eil101/5x/eil101_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  3449.00 (Savings)
+ALNS makespan:        3449.00
+Improvement:          0.00 (0.00%)
+Solve time:           132.36s
+Cross-vehicle:        0
+======================================================================
+

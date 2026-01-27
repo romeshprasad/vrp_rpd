@@ -1,0 +1,410 @@
+{
+  "problem": {
+    "num_customers": 23,
+    "num_agents": 3,
+    "resources_per_agent": 5,
+    "depot": 0
+  },
+  "solution": {
+    "makespan": 7015.0,
+    "generation": 200,
+    "source": "gpu_0",
+    "routes": [
+      {
+        "agent": 0,
+        "stops": [
+          {
+            "node": 23,
+            "operation": "dropoff"
+          },
+          {
+            "node": 6,
+            "operation": "dropoff"
+          },
+          {
+            "node": 21,
+            "operation": "dropoff"
+          },
+          {
+            "node": 22,
+            "operation": "dropoff"
+          },
+          {
+            "node": 18,
+            "operation": "dropoff"
+          },
+          {
+            "node": 8,
+            "operation": "pickup"
+          },
+          {
+            "node": 6,
+            "operation": "pickup"
+          },
+          {
+            "node": 15,
+            "operation": "dropoff"
+          },
+          {
+            "node": 22,
+            "operation": "pickup"
+          },
+          {
+            "node": 21,
+            "operation": "pickup"
+          },
+          {
+            "node": 23,
+            "operation": "pickup"
+          },
+          {
+            "node": 18,
+            "operation": "pickup"
+          }
+        ],
+        "num_customers": 6,
+        "completion_time": 6864.0
+      },
+      {
+        "agent": 1,
+        "stops": [
+          {
+            "node": 5,
+            "operation": "dropoff"
+          },
+          {
+            "node": 2,
+            "operation": "dropoff"
+          },
+          {
+            "node": 20,
+            "operation": "dropoff"
+          },
+          {
+            "node": 20,
+            "operation": "pickup"
+          },
+          {
+            "node": 12,
+            "operation": "dropoff"
+          },
+          {
+            "node": 19,
+            "operation": "dropoff"
+          },
+          {
+            "node": 12,
+            "operation": "pickup"
+          },
+          {
+            "node": 19,
+            "operation": "pickup"
+          },
+          {
+            "node": 5,
+            "operation": "pickup"
+          },
+          {
+            "node": 2,
+            "operation": "pickup"
+          }
+        ],
+        "num_customers": 5,
+        "completion_time": 7015.0
+      },
+      {
+        "agent": 2,
+        "stops": [
+          {
+            "node": 8,
+            "operation": "dropoff"
+          },
+          {
+            "node": 11,
+            "operation": "dropoff"
+          },
+          {
+            "node": 17,
+            "operation": "dropoff"
+          },
+          {
+            "node": 3,
+            "operation": "dropoff"
+          },
+          {
+            "node": 13,
+            "operation": "dropoff"
+          },
+          {
+            "node": 11,
+            "operation": "pickup"
+          },
+          {
+            "node": 1,
+            "operation": "dropoff"
+          },
+          {
+            "node": 17,
+            "operation": "pickup"
+          },
+          {
+            "node": 10,
+            "operation": "dropoff"
+          },
+          {
+            "node": 3,
+            "operation": "pickup"
+          },
+          {
+            "node": 13,
+            "operation": "pickup"
+          },
+          {
+            "node": 4,
+            "operation": "dropoff"
+          },
+          {
+            "node": 9,
+            "operation": "dropoff"
+          },
+          {
+            "node": 1,
+            "operation": "pickup"
+          },
+          {
+            "node": 16,
+            "operation": "dropoff"
+          },
+          {
+            "node": 10,
+            "operation": "pickup"
+          },
+          {
+            "node": 7,
+            "operation": "dropoff"
+          },
+          {
+            "node": 4,
+            "operation": "pickup"
+          },
+          {
+            "node": 14,
+            "operation": "dropoff"
+          },
+          {
+            "node": 16,
+            "operation": "pickup"
+          },
+          {
+            "node": 9,
+            "operation": "pickup"
+          },
+          {
+            "node": 7,
+            "operation": "pickup"
+          },
+          {
+            "node": 14,
+            "operation": "pickup"
+          },
+          {
+            "node": 15,
+            "operation": "pickup"
+          }
+        ],
+        "num_customers": 12,
+        "completion_time": 6934.0
+      }
+    ],
+    "jobs": {
+      "5": {
+        "dropoff_time": 80.0,
+        "processing_start": 80.0,
+        "processing_end": 1568.0,
+        "pickup_time": 5442.0,
+        "wait_time": 0.0,
+        "assigned_agent": 1
+      },
+      "23": {
+        "dropoff_time": 121.0,
+        "processing_start": 121.0,
+        "processing_end": 5783.0,
+        "pickup_time": 6443.0,
+        "wait_time": 0.0,
+        "assigned_agent": 0
+      },
+      "6": {
+        "dropoff_time": 163.0,
+        "processing_start": 163.0,
+        "processing_end": 3313.0,
+        "pickup_time": 3313.0,
+        "wait_time": 485.0,
+        "assigned_agent": 0
+      },
+      "2": {
+        "dropoff_time": 168.0,
+        "processing_start": 168.0,
+        "processing_end": 6828.0,
+        "pickup_time": 6828.0,
+        "wait_time": 1298.0,
+        "assigned_agent": 1
+      },
+      "8": {
+        "dropoff_time": 243.0,
+        "processing_start": 243.0,
+        "processing_end": 2599.0,
+        "pickup_time": 2599.0,
+        "wait_time": 1449.0,
+        "assigned_agent": 2
+      },
+      "20": {
+        "dropoff_time": 244.0,
+        "processing_start": 244.0,
+        "processing_end": 974.0,
+        "pickup_time": 974.0,
+        "wait_time": 730.0,
+        "assigned_agent": 1
+      },
+      "21": {
+        "dropoff_time": 323.0,
+        "processing_start": 323.0,
+        "processing_end": 6308.0,
+        "pickup_time": 6308.0,
+        "wait_time": 1496.0,
+        "assigned_agent": 0
+      },
+      "11": {
+        "dropoff_time": 416.0,
+        "processing_start": 416.0,
+        "processing_end": 1120.0,
+        "pickup_time": 1203.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "22": {
+        "dropoff_time": 544.0,
+        "processing_start": 544.0,
+        "processing_end": 4591.0,
+        "pickup_time": 4591.0,
+        "wait_time": 1048.0,
+        "assigned_agent": 0
+      },
+      "17": {
+        "dropoff_time": 640.0,
+        "processing_start": 640.0,
+        "processing_end": 3376.0,
+        "pickup_time": 3376.0,
+        "wait_time": 1843.0,
+        "assigned_agent": 2
+      },
+      "18": {
+        "dropoff_time": 783.0,
+        "processing_start": 783.0,
+        "processing_end": 6393.0,
+        "pickup_time": 6596.0,
+        "wait_time": 0.0,
+        "assigned_agent": 0
+      },
+      "3": {
+        "dropoff_time": 901.0,
+        "processing_start": 901.0,
+        "processing_end": 1485.0,
+        "pickup_time": 3708.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "13": {
+        "dropoff_time": 1050.0,
+        "processing_start": 1050.0,
+        "processing_end": 2381.0,
+        "pickup_time": 3857.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "12": {
+        "dropoff_time": 1199.0,
+        "processing_start": 1199.0,
+        "processing_end": 3052.0,
+        "pickup_time": 3052.0,
+        "wait_time": 1579.0,
+        "assigned_agent": 1
+      },
+      "19": {
+        "dropoff_time": 1336.0,
+        "processing_start": 1336.0,
+        "processing_end": 5242.0,
+        "pickup_time": 5242.0,
+        "wait_time": 2053.0,
+        "assigned_agent": 1
+      },
+      "1": {
+        "dropoff_time": 1394.0,
+        "processing_start": 1394.0,
+        "processing_end": 3254.0,
+        "pickup_time": 4062.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "15": {
+        "dropoff_time": 3356.0,
+        "processing_start": 3356.0,
+        "processing_end": 5778.0,
+        "pickup_time": 6880.0,
+        "wait_time": 0.0,
+        "assigned_agent": 0
+      },
+      "10": {
+        "dropoff_time": 3523.0,
+        "processing_start": 3523.0,
+        "processing_end": 5883.0,
+        "pickup_time": 5883.0,
+        "wait_time": 1587.0,
+        "assigned_agent": 2
+      },
+      "4": {
+        "dropoff_time": 3936.0,
+        "processing_start": 3936.0,
+        "processing_end": 4320.0,
+        "pickup_time": 6007.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "9": {
+        "dropoff_time": 3976.0,
+        "processing_start": 3976.0,
+        "processing_end": 5120.0,
+        "pickup_time": 6317.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "16": {
+        "dropoff_time": 4136.0,
+        "processing_start": 4136.0,
+        "processing_end": 6112.0,
+        "pickup_time": 6280.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      },
+      "7": {
+        "dropoff_time": 5973.0,
+        "processing_start": 5973.0,
+        "processing_end": 6435.0,
+        "pickup_time": 6435.0,
+        "wait_time": 36.0,
+        "assigned_agent": 2
+      },
+      "14": {
+        "dropoff_time": 6155.0,
+        "processing_start": 6155.0,
+        "processing_end": 6536.0,
+        "pickup_time": 6625.0,
+        "wait_time": 0.0,
+        "assigned_agent": 2
+      }
+    }
+  },
+  "checkpoint": {
+    "generation": 200,
+    "elapsed_time": 432.1437554359436
+  }
+}
