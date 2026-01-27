@@ -315,26 +315,6 @@ The paper demonstrates that exact MILP methods are intractable:
 
 If you use this solver in your research, please cite:
 
-```bibtex
-@article{vrp-rpd-2024,
-  title={Vehicle Routing Problem with Resource-Constrained Pickup and Delivery:
-         A BRKGA Approach with Genetic Programming},
-  author={[Author Names]},
-  journal={[Journal Name]},
-  year={2024}
-}
-```
-
-## License
-
-[Specify your license here - e.g., MIT, Apache 2.0, etc.]
-
-## Contact
-
-For questions, issues, or contributions, please:
-- Open an issue on GitHub
-- Contact: [Your contact information]
-
 ## Acknowledgments
 
 - TSPlib benchmark instances: Gerhard Reinelt, University of Heidelberg
