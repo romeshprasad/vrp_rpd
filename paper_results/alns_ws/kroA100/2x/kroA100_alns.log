@@ -1,0 +1,68 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/kroA100/kroA100.tsp
+  Jobs: datasets/kroA100/2x/job_times.csv
+  WARNING: Depot mismatch (TSP: 100, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 99
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/kroA100/2x/kroA100_heuristics.json
+  Heuristic: Greedy Defer 5.0x
+  Makespan: 66803.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 99, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W0 done: makespan=66803.00, cross=18, t=71.2s
+  W1 done: makespan=66803.00, cross=18, t=71.2s
+  W2 done: makespan=66803.00, cross=18, t=69.9s
+  W3 done: makespan=66803.00, cross=18, t=71.8s
+
+------------------------------------------------------------
+ALNS Final: 66803.00
+Cross-vehicle: 18
+Time: 71.9s
+============================================================
+
+
+Solution saved to: results/alns_ws/kroA100/2x/kroA100_alns.json
+HTML Gantt chart saved to: results/alns_ws/kroA100/2x/kroA100_alns.html
+Gantt chart saved to: results/alns_ws/kroA100/2x/kroA100_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  66803.00 (Greedy Defer 5.0x)
+ALNS makespan:        66803.00
+Improvement:          0.00 (0.00%)
+Solve time:           71.86s
+Cross-vehicle:        18
+======================================================================
+

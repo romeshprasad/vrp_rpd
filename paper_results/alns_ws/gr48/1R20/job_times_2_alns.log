@@ -1,0 +1,93 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/gr48/gr48.tsp
+  Jobs: datasets/gr48/1R20/job_times_2.csv
+  WARNING: Depot mismatch (TSP: 48, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 47
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/gr48/1R20/job_times_2_heuristics.json
+  Heuristic: Greedy Defer 5.0x
+  Makespan: 36095.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 47, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W1 iter 6: best=36050.00, cross=12, t=0.2s
+  W1 iter 11: best=35334.00, cross=10, t=0.4s
+  W1 iter 35: best=32883.00, cross=9, t=1.0s
+  W1 iter 97: best=32495.00, cross=9, t=2.5s
+  W1 iter 172: best=31794.00, cross=10, t=4.8s
+  W1 iter 392: best=31742.00, cross=7, t=10.7s
+  W1 done: makespan=31742.00, cross=7, t=23.8s
+  W0 iter 11: best=33928.00, cross=13, t=0.3s
+  W0 iter 33: best=33557.00, cross=12, t=0.9s
+  W0 iter 45: best=32488.00, cross=10, t=1.1s
+  W0 iter 64: best=32129.00, cross=11, t=1.7s
+  W0 iter 162: best=32124.00, cross=10, t=4.6s
+  W0 iter 337: best=31582.00, cross=7, t=9.4s
+  W0 iter 474: best=31511.00, cross=6, t=13.2s
+  W0 iter 629: best=31304.00, cross=6, t=17.6s
+  W0 done: makespan=31304.00, cross=6, t=31.3s
+  W2 iter 1: best=36050.00, cross=12, t=0.0s
+  W2 iter 4: best=33698.00, cross=10, t=0.1s
+  W2 iter 48: best=32678.00, cross=10, t=1.2s
+  W2 done: makespan=32678.00, cross=10, t=23.1s
+  W3 iter 7: best=34084.00, cross=11, t=0.2s
+  W3 iter 11: best=33995.00, cross=11, t=0.3s
+  W3 iter 51: best=33992.00, cross=8, t=1.3s
+  W3 iter 56: best=33917.00, cross=8, t=1.4s
+  W3 iter 337: best=33804.00, cross=7, t=9.4s
+  W3 iter 341: best=33691.00, cross=7, t=9.5s
+  W3 iter 381: best=33614.00, cross=5, t=10.4s
+  W3 iter 751: best=33218.00, cross=5, t=20.2s
+  W3 done: makespan=33218.00, cross=5, t=34.9s
+
+------------------------------------------------------------
+ALNS Final: 31304.00
+Cross-vehicle: 6
+Time: 35.0s
+============================================================
+
+
+Solution saved to: results/alns_ws/gr48/1R20/job_times_2_alns.json
+HTML Gantt chart saved to: results/alns_ws/gr48/1R20/job_times_2_alns.html
+Gantt chart saved to: results/alns_ws/gr48/1R20/job_times_2_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  36095.00 (Greedy Defer 5.0x)
+ALNS makespan:        31304.00
+Improvement:          4791.00 (13.27%)
+Solve time:           34.97s
+Cross-vehicle:        6
+======================================================================
+

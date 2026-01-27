@@ -1,0 +1,26 @@
+DEBUG: proc shape: (1000,), agents: 6, resources: 4, n: 1000
+
+======================================================================
+HEURISTIC-ONLY MODE
+======================================================================
+Problem: 999 customers, 6 agents, k=4
+Timeout per heuristic: 5 minutes
+======================================================================
+
+Running Nearest Neighbor heuristic...
+  Nearest Neighbor: 3051520167.00 (time: 1.48s) ✓
+Running Max Regret heuristic...
+Traceback (most recent call last):
+  File "/home/romesh/vrp_rpd/main.py", line 378, in <module>
+    main()
+  File "/home/romesh/vrp_rpd/main.py", line 181, in main
+    run_heuristics_only(instance, heuristic_output, html_output, allow_mixed=args.allow_mixed)
+  File "/home/romesh/vrp_rpd/vrp_rpd/heuristic_runner.py", line 207, in run_heuristics_only
+    chrom, makespan, tours = generate_max_regret_solution(
+  File "/home/romesh/vrp_rpd/vrp_rpd/heuristics.py", line 300, in generate_max_regret_solution
+    cost = compute_insertion_cost(c_idx, a, pos, 'D', agent_tours)
+  File "/home/romesh/vrp_rpd/vrp_rpd/heuristics.py", line 283, in compute_insertion_cost
+    return evaluate_tour_makespan(test_tours)
+  File "/home/romesh/vrp_rpd/vrp_rpd/heuristics.py", line 255, in evaluate_tour_makespan
+    if agent_deployed[a] <= 0:
+KeyboardInterrupt

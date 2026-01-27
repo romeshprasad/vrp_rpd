@@ -1,0 +1,49 @@
+DEBUG: proc shape: (666,), agents: 6, resources: 4, n: 666
+
+======================================================================
+HEURISTIC-ONLY MODE
+======================================================================
+Problem: 665 customers, 6 agents, k=4
+Timeout per heuristic: 5 minutes
+======================================================================
+
+Running Nearest Neighbor heuristic...
+  Nearest Neighbor: 28895360.00 (time: 0.61s) ✓
+Running Max Regret heuristic...
+  Max Regret TIMEOUT: Execution exceeded 300 seconds
+Running Savings (Clarke-Wright) heuristic...
+  Savings: 10891790.00 (time: 0.37s) ✓
+Running Greedy Defer heuristics...
+  Greedy Defer 5.0x: 11363885.00 (time: 0.40s) ✓
+  Greedy Defer 8.0x: 11363885.00 (time: 0.40s) ✓
+  Greedy Defer 10.0x: 11363885.00 (time: 0.39s) ✓
+  Greedy Defer 12.0x: 11363885.00 (time: 0.41s) ✓
+  Greedy Defer 15.0x: 11363885.00 (time: 0.39s) ✓
+  Greedy Defer 20.0x: 11363885.00 (time: 0.39s) ✓
+Skipping 2-opt heuristics (disabled for performance)
+
+======================================================================
+HEURISTIC RESULTS SUMMARY
+======================================================================
+Heuristic                               Makespan     Time (s)
+----------------------------------------------------------------------
+Savings                              10891790.00         0.37 <-- BEST
+Greedy Defer 5.0x                    11363885.00         0.40
+Greedy Defer 8.0x                    11363885.00         0.40
+Greedy Defer 10.0x                   11363885.00         0.39
+Greedy Defer 12.0x                   11363885.00         0.41
+Greedy Defer 15.0x                   11363885.00         0.39
+Greedy Defer 20.0x                   11363885.00         0.39
+Nearest Neighbor                     28895360.00         0.61
+----------------------------------------------------------------------
+BEST: Savings                        10891790.00
+======================================================================
+
+Saved 8 heuristic solutions to: ./results/heuristics_only_no_interleave/gr666/1R20/job_times_4_heuristics.json
+HTML Gantt chart saved to: ./results/heuristics_only_no_interleave/gr666/1R20/job_times_4_heuristics.html
+Saved Gantt chart to: ./results/heuristics_only_no_interleave/gr666/1R20/job_times_4_heuristics.html
+
+======================================================================
+HEURISTIC-ONLY COMPLETE: Best makespan = 10891790.00
+======================================================================
+

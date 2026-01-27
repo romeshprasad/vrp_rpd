@@ -1,0 +1,68 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/gr431/gr431.tsp
+  Jobs: datasets/gr431/1R20/job_times_2.csv
+  WARNING: Depot mismatch (TSP: 431, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 430
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/gr431/1R20/job_times_2_heuristics.json
+  Heuristic: Savings
+  Makespan: 6669523.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 430, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W3 done: makespan=6669523.00, cross=0, t=302.9s
+  W2 done: makespan=6669523.00, cross=0, t=313.7s
+  W1 done: makespan=6669523.00, cross=0, t=321.6s
+  W0 done: makespan=6669523.00, cross=0, t=315.3s
+
+------------------------------------------------------------
+ALNS Final: 6669523.00
+Cross-vehicle: 0
+Time: 321.7s
+============================================================
+
+
+Solution saved to: results/alns_ws/gr431/1R20/job_times_2_alns.json
+HTML Gantt chart saved to: results/alns_ws/gr431/1R20/job_times_2_alns.html
+Gantt chart saved to: results/alns_ws/gr431/1R20/job_times_2_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  6669523.00 (Savings)
+ALNS makespan:        6669523.00
+Improvement:          0.00 (0.00%)
+Solve time:           321.69s
+Cross-vehicle:        0
+======================================================================
+

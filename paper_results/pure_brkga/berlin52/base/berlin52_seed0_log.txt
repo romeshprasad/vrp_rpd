@@ -1,0 +1,38 @@
+Setting random seed to 0
+DEBUG: proc shape: (52,), agents: 6, resources: 4, n: 52
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 51 customers, 6 agents, k=4
+Heuristic: None
+Genetic Programming: No
+Warm Start: No
+Gene Injection: No
+Workers: 1 GPU + 0 CPU
+Generations: 5000
+======================================================================
+
+
+[No GP] Waiting for workers to complete evolution (timeout: 750s)...
+Process Process-1:
+Traceback (most recent call last):
+  File "/home/romesh/vrp_rpd/main.py", line 378, in <module>
+    main()
+  File "/home/romesh/vrp_rpd/main.py", line 247, in main
+    result = solver.solve()
+  File "/home/romesh/vrp_rpd/vrp_rpd/solver.py", line 649, in solve
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+    time.sleep(5.0)  # Check every 5 seconds instead of 1
+  File "/usr/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/romesh/vrp_rpd/vrp_rpd/workers.py", line 56, in gpu_worker
+    island = GPUIsland(
+KeyboardInterrupt
+  File "/home/romesh/vrp_rpd/vrp_rpd/islands.py", line 50, in __init__
+    self.population = self._init_population()
+  File "/home/romesh/vrp_rpd/vrp_rpd/islands.py", line 65, in _init_population
+    keys = torch.rand(self.num_cust, device=self.device)
+KeyboardInterrupt

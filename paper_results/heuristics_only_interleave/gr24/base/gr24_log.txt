@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/home/romesh/vrp_rpd/main.py", line 33, in <module>
+    from vrp_rpd import (
+  File "/home/romesh/vrp_rpd/vrp_rpd/__init__.py", line 19, in <module>
+    from .solver import VRPRPDSolver
+  File "/home/romesh/vrp_rpd/vrp_rpd/solver.py", line 16, in <module>
+    from .heuristics import (
+  File "/home/romesh/vrp_rpd/vrp_rpd/heuristics.py", line 14, in <module>
+    from .decoder import compute_makespan_from_tours
+  File "/home/romesh/vrp_rpd/vrp_rpd/decoder.py", line 23, in <module>
+    HAS_NUMBA_CUDA = numba_cuda.is_available()
+  File "/home/romesh/.local/lib/python3.10/site-packages/numba/cuda/device_init.py", line 57, in is_available
+    driver_is_available = driver.driver.is_available
+  File "/home/romesh/.local/lib/python3.10/site-packages/numba/cuda/cudadrv/driver.py", line 287, in is_available
+    self.ensure_initialized()
+  File "/home/romesh/.local/lib/python3.10/site-packages/numba/cuda/cudadrv/driver.py", line 254, in ensure_initialized
+    self.cuInit(0)
+  File "/home/romesh/.local/lib/python3.10/site-packages/numba/cuda/cudadrv/driver.py", line 326, in safe_cuda_api_call
+    retcode = libfn(*args)
+KeyboardInterrupt

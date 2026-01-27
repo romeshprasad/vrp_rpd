@@ -1,0 +1,75 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/bays29/bays29.tsp
+  Jobs: datasets/bays29/1R10/job_times_1.csv
+  WARNING: Depot mismatch (TSP: 29, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 28
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/bays29/1R10/job_times_1_heuristics.json
+  Heuristic: Greedy Defer 5.0x
+  Makespan: 5304.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 28, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W1 iter 1: best=5210.00, cross=11, t=0.0s
+  W1 done: makespan=5210.00, cross=11, t=7.8s
+  W2 iter 3: best=5271.00, cross=9, t=0.0s
+  W2 iter 1398: best=5146.00, cross=4, t=10.3s
+  W2 done: makespan=5146.00, cross=4, t=13.8s
+  W3 iter 6: best=5134.00, cross=9, t=0.1s
+  W3 iter 352: best=5089.00, cross=4, t=2.6s
+  W3 done: makespan=5089.00, cross=4, t=8.0s
+  W0 iter 7: best=5275.00, cross=10, t=0.1s
+  W0 iter 8: best=4980.00, cross=10, t=0.1s
+  W0 done: makespan=4980.00, cross=10, t=15.5s
+
+------------------------------------------------------------
+ALNS Final: 4980.00
+Cross-vehicle: 10
+Time: 15.6s
+============================================================
+
+
+Solution saved to: results/alns_ws/bays29/1R10/job_times_1_alns.json
+HTML Gantt chart saved to: results/alns_ws/bays29/1R10/job_times_1_alns.html
+Gantt chart saved to: results/alns_ws/bays29/1R10/job_times_1_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  5304.00 (Greedy Defer 5.0x)
+ALNS makespan:        4980.00
+Improvement:          324.00 (6.11%)
+Solve time:           15.59s
+Cross-vehicle:        10
+======================================================================
+

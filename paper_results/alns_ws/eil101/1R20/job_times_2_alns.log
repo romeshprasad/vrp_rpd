@@ -1,0 +1,72 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/eil101/eil101.tsp
+  Jobs: datasets/eil101/1R20/job_times_2.csv
+  WARNING: Depot mismatch (TSP: 101, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 100
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/eil101/1R20/job_times_2_heuristics.json
+  Heuristic: Max Regret
+  Makespan: 7030.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 100, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W2 done: makespan=8053.00, cross=83, t=200.2s
+  W0 iter 20: best=7961.00, cross=77, t=7.7s
+  W0 done: makespan=7961.00, cross=77, t=207.7s
+  W1 iter 0: best=7545.00, cross=78, t=0.3s
+  W1 iter 1: best=6992.00, cross=73, t=0.6s
+  W1 done: makespan=6992.00, cross=73, t=213.4s
+  W3 iter 80: best=7720.00, cross=76, t=30.6s
+  W3 done: makespan=7720.00, cross=76, t=230.7s
+
+------------------------------------------------------------
+ALNS Final: 6992.00
+Cross-vehicle: 73
+Time: 230.8s
+============================================================
+
+
+Solution saved to: results/alns_ws/eil101/1R20/job_times_2_alns.json
+HTML Gantt chart saved to: results/alns_ws/eil101/1R20/job_times_2_alns.html
+Gantt chart saved to: results/alns_ws/eil101/1R20/job_times_2_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  7030.00 (Max Regret)
+ALNS makespan:        6992.00
+Improvement:          38.00 (0.54%)
+Solve time:           230.81s
+Cross-vehicle:        73
+======================================================================
+

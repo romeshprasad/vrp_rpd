@@ -1,0 +1,70 @@
+Setting random seed to 0
+DEBUG: proc shape: (29,), agents: 6, resources: 4, n: 29
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 28 customers, 6 agents, k=4
+Heuristic: None
+Genetic Programming: No
+Warm Start: No
+Gene Injection: No
+Workers: 1 GPU + 0 CPU
+Generations: 5000
+======================================================================
+
+
+[No GP] Waiting for workers to complete evolution (timeout: 750s)...
+
+*** [GPU 0] NEW GLOBAL BEST: 2252.00 at gen 0 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen     0 | Best:  2252.00 | 1.1s
+[No GP] 60s elapsed, 1 workers running, 1 intermediate results
+
+*** [GPU 0] NEW GLOBAL BEST: 1321.00 at gen 100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   100 | Best:  1321.00 | 86.0s
+[No GP] 120s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen   200 | Best:  1321.00 | 171.0s
+[No GP] 180s elapsed, 1 workers running, 1 intermediate results
+[No GP] 240s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen   300 | Best:  1321.00 | 255.5s
+[No GP] 300s elapsed, 1 workers running, 1 intermediate results
+[No GP] 360s elapsed, 1 workers running, 1 intermediate results
+[No GP] 420s elapsed, 1 workers running, 1 intermediate results
+
+*** [GPU 0] NEW GLOBAL BEST: 1299.00 at gen 400 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   400 | Best:  1299.00 | 433.8s
+[No GP] 480s elapsed, 1 workers running, 1 intermediate results
+[No GP] 540s elapsed, 1 workers running, 1 intermediate results
+
+*** [GPU 0] NEW GLOBAL BEST: 1293.00 at gen 500 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   500 | Best:  1293.00 | 559.0s
+[No GP] 601s elapsed, 1 workers running, 1 intermediate results
+[No GP] 661s elapsed, 1 workers running, 1 intermediate results
+[No GP] 721s elapsed, 1 workers running, 1 intermediate results
+
+[No GP] Timeout after 750.7s. Collected 1 intermediate results.
+
+[Final Collection] Have 1/1 workers. Waiting up to 120s for remaining...
+
+[Critical] Attempting final result collection before terminating workers...
+[Warning] Terminating worker that didn't finish
+
+[Results Summary] Collected 1 results:
+  gpu_0: fitness=1293.00, intermediate=True, gen=500
+
+======================================================================
+COMPLETE
+======================================================================
+Best: 1293.00 from gpu_0
+Time: 755.7s
+
+Solution JSON saved to ./results/pure_brkga_longer_run/bays29/base/bays29_seed0.json
+HTML Gantt chart saved to: ./results/pure_brkga_longer_run/bays29/base/bays29_seed0.html

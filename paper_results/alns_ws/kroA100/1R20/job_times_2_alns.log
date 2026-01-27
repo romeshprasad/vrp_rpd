@@ -1,0 +1,86 @@
+
+======================================================================
+ALNS Solver for VRP-RPD
+======================================================================
+
+Loading instance...
+  TSP: datasets/kroA100/kroA100.tsp
+  Jobs: datasets/kroA100/1R20/job_times_2.csv
+  WARNING: Depot mismatch (TSP: 100, Jobs: 0). Using jobs file depot: 0
+
+Problem:
+  Customers: 99
+  Agents: 6
+  Capacity: 4
+  Depot: 0
+  Interleaving: enabled
+
+Loading warm-start from: results/heuristics_only/kroA100/1R20/job_times_2_heuristics.json
+  Heuristic: Max Regret
+  Makespan: 283127.00
+
+ALNS Configuration:
+  Max iterations: 20000
+  Max time: 300s
+  No-improve limit: 500
+  Destroy range: 10.0% - 30.0%
+  Temperature: 100.0 (cooling: 0.999)
+  Parallel workers: 4
+  Cross-vehicle pickups: True
+
+======================================================================
+Running ALNS...
+======================================================================
+
+============================================================
+ALNS for VRP-RPD
+============================================================
+Customers: 99, Vehicles: 6, Capacity: 4
+Parallel workers: 4
+Numba JIT: True
+Allow cross-vehicle: True
+Using warm-start from provided chromosome
+  W3 iter 43: best=330094.00, cross=70, t=15.3s
+  W3 iter 46: best=305947.00, cross=60, t=16.4s
+  W3 done: makespan=305947.00, cross=60, t=203.0s
+  W2 iter 19: best=333833.00, cross=75, t=6.8s
+  W2 iter 177: best=302066.00, cross=71, t=59.8s
+  W2 iter 341: best=286136.00, cross=66, t=116.5s
+  W2 iter 441: best=255451.00, cross=48, t=148.9s
+  W2 done: makespan=255451.00, cross=48, t=300.1s
+  W0 iter 29: best=334820.00, cross=70, t=10.5s
+  W0 iter 344: best=317432.00, cross=64, t=126.6s
+  W0 iter 527: best=314000.00, cross=59, t=191.5s
+  W0 iter 636: best=305664.00, cross=55, t=230.4s
+  W0 done: makespan=305664.00, cross=55, t=300.3s
+  W1 iter 81: best=336555.00, cross=74, t=29.5s
+  W1 iter 98: best=312751.00, cross=60, t=36.1s
+  W1 iter 107: best=298455.00, cross=51, t=39.1s
+  W1 iter 151: best=298226.00, cross=45, t=54.6s
+  W1 iter 329: best=287294.00, cross=34, t=109.5s
+  W1 iter 376: best=270306.00, cross=31, t=124.7s
+  W1 iter 697: best=268298.00, cross=30, t=229.1s
+  W1 iter 731: best=266838.00, cross=30, t=240.0s
+  W1 done: makespan=266838.00, cross=30, t=300.4s
+
+------------------------------------------------------------
+ALNS Final: 255451.00
+Cross-vehicle: 48
+Time: 300.5s
+============================================================
+
+
+Solution saved to: results/alns_ws/kroA100/1R20/job_times_2_alns.json
+HTML Gantt chart saved to: results/alns_ws/kroA100/1R20/job_times_2_alns.html
+Gantt chart saved to: results/alns_ws/kroA100/1R20/job_times_2_alns.html
+
+======================================================================
+ALNS COMPLETE
+======================================================================
+Warm-start makespan:  283127.00 (Max Regret)
+ALNS makespan:        255451.00
+Improvement:          27676.00 (9.78%)
+Solve time:           300.46s
+Cross-vehicle:        48
+======================================================================
+

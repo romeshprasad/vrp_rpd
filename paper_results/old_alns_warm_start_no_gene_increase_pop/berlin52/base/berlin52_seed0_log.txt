@@ -1,0 +1,78 @@
+Setting random seed to 0
+DEBUG: proc shape: (52,), agents: 6, resources: 4, n: 52
+
+======================================================================
+LOADING INITIAL SOLUTION FROM JSON
+======================================================================
+Loaded solution from ./results/alns_ws/berlin52/base/berlin52_alns.json: makespan = 8877.00
+File: ./results/alns_ws/berlin52/base/berlin52_alns.json
+Makespan: 8877.00
+Status: SUCCESS - Will use as warm start
+======================================================================
+
+
+======================================================================
+VRP-RPD SOLVER
+======================================================================
+Problem: 51 customers, 6 agents, k=4
+Heuristic: None
+Genetic Programming: No
+Warm Start: Yes
+Gene Injection: No
+Workers: 1 GPU + 0 CPU
+Generations: 5000
+======================================================================
+
+Using solution from JSON file as warm start...
+  JSON solution: 8877.00
+Skipping heuristic re-computation (using JSON solution + perturbations)
+
+Generated 6 warm start chromosomes from JSON
+
+[No GP] Waiting for workers to complete evolution (timeout: 750s)...
+[GPU 0] Warm start: 6 chromosomes
+[GPU 0] Gen     0 | Best:  8877.00 | 2.1s
+[No GP] 60s elapsed, 1 workers running, 1 intermediate results
+[No GP] 120s elapsed, 1 workers running, 1 intermediate results
+
+*** [GPU 0] NEW GLOBAL BEST: 5652.00 at gen 100 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   100 | Best:  5652.00 | 176.3s
+[No GP] 180s elapsed, 1 workers running, 1 intermediate results
+[No GP] 240s elapsed, 1 workers running, 1 intermediate results
+[No GP] 300s elapsed, 1 workers running, 1 intermediate results
+
+*** [GPU 0] NEW GLOBAL BEST: 5362.00 at gen 200 ***
+    Saved to best_solution.json
+
+[GPU 0] Gen   200 | Best:  5362.00 | 348.5s
+[No GP] 360s elapsed, 1 workers running, 1 intermediate results
+[No GP] 420s elapsed, 1 workers running, 1 intermediate results
+[No GP] 480s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen   300 | Best:  5362.00 | 518.0s
+[No GP] 540s elapsed, 1 workers running, 1 intermediate results
+[No GP] 601s elapsed, 1 workers running, 1 intermediate results
+[No GP] 661s elapsed, 1 workers running, 1 intermediate results
+[GPU 0] Gen   400 | Best:  5362.00 | 687.5s
+[No GP] 721s elapsed, 1 workers running, 1 intermediate results
+
+[No GP] Timeout after 750.7s. Collected 1 intermediate results.
+
+[Final Collection] Have 1/1 workers. Waiting up to 120s for remaining...
+
+[Critical] Attempting final result collection before terminating workers...
+[Warning] Terminating worker that didn't finish
+
+[Results Summary] Collected 1 results:
+  gpu_0: fitness=5362.00, intermediate=True, gen=200
+
+======================================================================
+COMPLETE
+======================================================================
+Best: 5362.00 from gpu_0
+  (Improved 39.6% over heuristic 8877.00)
+Time: 755.7s
+
+Solution JSON saved to ./results/alns_warm_start_no_gene_increase_pop/berlin52/base/berlin52_seed0.json
+HTML Gantt chart saved to: ./results/alns_warm_start_no_gene_increase_pop/berlin52/base/berlin52_seed0.html
