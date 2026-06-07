@@ -45,19 +45,19 @@ MULTI_SEEDS=(0)
 
 # Datasets to run (ordered by size)
 # FULL LIST (uncomment for full experiment):
-DATASETS=(eil101 eil51 bays29 berlin52 gr17 gr202 gr21 gr24 gr431 gr48 kroA100)
+#DATASETS=(eil101 eil51 bays29 berlin52 gr17 gr202 gr21 gr24 gr431 gr48 kroA100)
 
 # SINGLE DATASET TEST (comment out and uncomment above for full run):
-#DATASETS=(berlin52)  # Small dataset for quick validation (~10 min per config)
+DATASETS=(gr17)  # Small dataset for quick validation (~10 min per config)
 
 BASE_DIR=./datasets
-OUT_DIR=./results/cold_start
+OUT_DIR=./new_results/cold_start
 SCRIPT=main.py
 
 TOTAL_GENS=5000
 CHECKPOINT_INTERVAL=1000
 DEFAULT_GPUS=1
-DEFAULT_POP_GPU=512
+DEFAULT_POP_GPU=50000
 
 # GP Analysis Component Combinations to test
 # Format: "name:use_blocks:use_fft:use_similarity"

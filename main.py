@@ -29,7 +29,6 @@ def set_seed(seed: int):
     except ImportError:
         pass
 
-
 from vrp_rpd import (
     VRPRPDInstance,
     VRPRPDSolver,
