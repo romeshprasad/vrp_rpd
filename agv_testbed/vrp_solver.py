@@ -28,8 +28,8 @@ from vrp_rpd import (
 )
 from vrp_rpd.utils import simulate_solution
 
-from grid_env import WarehouseGrid, load_bays29_grid, bfs_path
-from instance_builder import build_vrp_instance, solver_index_to_ws_id
+from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_bays29_grid, bfs_path
+from vrp_rpd.agv_testbed.instance_builder import build_vrp_instance, solver_index_to_ws_id
 
 
 @dataclass
@@ -43,7 +43,7 @@ class AgentPlan:
     @property
     def visit_sequence(self) -> List[int]:
         """Grid nodes visited in order, bookended by depot."""
-        from grid_env import DEPOT_NODE
+        from vrp_rpd.agv_testbed.grid_env import DEPOT_NODE
         nodes = [DEPOT_NODE]
         for gnode, _op, _c in self.events:
             nodes.append(gnode)

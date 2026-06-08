@@ -1,7 +1,7 @@
 """
 Warehouse Grid Environment
 --------------------------
-10x10 transit grid = 100 nodes (IDs 0–99), all freely navigable.
+8x8 transit grid = 64 nodes (IDs 0–63), all freely navigable.
 Node (r, c) has integer id  r * COLS + c.
 Depot is always node 0 = (row=0, col=0) = bottom-left corner.
 
@@ -30,9 +30,9 @@ import numpy as np
 from collections import deque
 from pathlib import Path
 
-ROWS    = 10
-COLS    = 10
-N_NODES = ROWS * COLS   # 100 transit nodes
+ROWS    = 8
+COLS    = 8
+N_NODES = ROWS * COLS   # 64 transit nodes
 DEPOT_NODE = 0          # (row=0, col=0) — bottom-left
 SPUR_LEN   = 5          # half a cell — fixed spur length (transit→entry = 1, entry→ws = SPUR_LEN)
 
@@ -113,7 +113,7 @@ class WarehouseGrid:
     Warehouse with spur geometry.
 
     Virtual node ID scheme (given n workstations):
-      Transit nodes  :   0 .. N_NODES-1          (the 10×10 grid)
+      Transit nodes  :   0 .. N_NODES-1          (the 8×8 grid)
       Spur entries   :   N_NODES .. N_NODES+n-1
       Workstations   :   N_NODES+n .. N_NODES+2n-1
 

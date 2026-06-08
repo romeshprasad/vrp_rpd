@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "vrp_rpd"))
 from vrp_rpd import VRPRPDInstance
 
-from grid_env import WarehouseGrid, load_bays29_grid, node_rc
+from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_bays29_grid, node_rc
 
 
 def build_vrp_instance(
@@ -94,7 +94,7 @@ def tours_to_grid_paths(tours: dict, grid: WarehouseGrid) -> dict:
 # Quick test
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    from grid_env import load_dataset_grid
+    from vrp_rpd.agv_testbed.grid_env import load_dataset_grid
     grid = load_dataset_grid("bays29", variant="base", seed=42)
     inst = build_vrp_instance(grid, num_agents=4, resources_per_agent=6)
 

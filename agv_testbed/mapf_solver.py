@@ -21,7 +21,7 @@ import heapq
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple
 
-from grid_env import neighbors, N_NODES, DEPOT_NODE
+from vrp_rpd.agv_testbed.grid_env import neighbors, N_NODES, DEPOT_NODE
 
 
 # ---------------------------------------------------------------------------

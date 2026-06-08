@@ -54,11 +54,11 @@ if HEADLESS:
     os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
 import pygame
-from grid_env import (
+from vrp_rpd.agv_testbed.grid_env import (
     WarehouseGrid, load_dataset_grid, node_rc, ROWS, COLS, DEPOT_NODE, N_NODES, SPUR_LEN
 )
-from mapf_solver import TimedPath
-from vrp_solver import SolverResult
+from vrp_rpd.agv_testbed.mapf_solver import TimedPath
+from vrp_rpd.agv_testbed.vrp_solver import SolverResult
 
 
 # ── Layout ───────────────────────────────────────────────────────────────────
@@ -520,8 +520,8 @@ def main():
     }
     num_agents, resources = config[args.dataset]
 
-    from grid_env import load_dataset_grid
-    from pipeline import run_pipeline
+    from vrp_rpd.agv_testbed.grid_env import load_dataset_grid
+    from vrp_rpd.agv_testbed.pipeline import run_pipeline
 
     grid = load_dataset_grid(args.dataset, variant=args.variant, seed=args.seed)
 

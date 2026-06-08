@@ -37,10 +37,10 @@ from typing import Dict, List, Optional
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from grid_env import load_dataset_grid, WarehouseGrid
-from vrp_solver import run_heuristics, SolverResult
-from mapf_solver import solve_mapf, MAPFResult
-from pipeline import run_pipeline, PipelineResult
+from vrp_rpd.agv_testbed.grid_env import load_dataset_grid, WarehouseGrid
+from vrp_rpd.agv_testbed.vrp_solver import run_heuristics, SolverResult
+from vrp_rpd.agv_testbed.mapf_solver import solve_mapf, MAPFResult
+from vrp_rpd.agv_testbed.pipeline import run_pipeline, PipelineResult
 
 
 # ── Dataset config: (num_agents, resources_per_agent) ───────────────────────

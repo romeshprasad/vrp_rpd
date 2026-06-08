@@ -33,9 +33,9 @@ from flask import Flask, Response, request, jsonify
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from grid_env import load_dataset_grid
-from pipeline import run_pipeline
-from visualize import WarehouseViz
+from vrp_rpd.agv_testbed.grid_env import load_dataset_grid
+from vrp_rpd.agv_testbed.pipeline import run_pipeline
+from vrp_rpd.agv_testbed.visualize import WarehouseViz
 
 
 DATASET_CONFIG = {
@@ -273,7 +273,7 @@ def load_result(path: str):
     Returns (grid_stub, vrp_stub, paths_dict, num_agents, resources, meta).
     """
     from types import SimpleNamespace
-    from grid_env import WarehouseGrid, build_distance_matrix
+    from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, build_distance_matrix
 
     with open(path) as f:
         data = json.load(f)
@@ -318,7 +318,7 @@ def load_result(path: str):
     )
 
     # Reconstruct MAPF paths
-    from mapf_solver import TimedPath
+    from vrp_rpd.agv_testbed.mapf_solver import TimedPath
     paths = {
         int(aid_str): TimedPath(agent_id=int(aid_str), path=[(step[0], step[1]) for step in path_list])
         for aid_str, path_list in data["mapf_paths"].items()
