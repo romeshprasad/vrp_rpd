@@ -55,7 +55,7 @@ typedef enum {
 // ── WiFi / micro-ROS agent ───────────────────────────────────────────────
 char WIFI_SSID[]     = "ISECapstone";
 char WIFI_PASSWORD[] = "j0shf1sh";
-char AGENT_IP[]      = "192.168.0.116";
+char AGENT_IP[]      = "192.168.0.129";
 const uint32_t AGENT_PORT  = 8888;
 
 // ── Robot identity ───────────────────────────────────────────────────────
@@ -132,7 +132,7 @@ float start_yaw_deg = 0.0f;
 int getAlvikID() {
   String mac = WiFi.macAddress();
   mac.toUpperCase();
-  if (mac == "3C:84:27:C3:EA:EC") return 1;
+  if (mac == "3C:84:27:C2:87:50") return 1;
   if (mac == "3C:84:27:C2:BC:40") return 2;
   if (mac == "74:4D:BD:A2:1D:C0") return 3;
   return 1;
