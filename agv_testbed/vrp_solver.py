@@ -26,9 +26,10 @@ from vrp_rpd import (
     decode_chromosome,
     compute_makespan_from_tours,
 )
+from vrp_rpd.solver import VRPRPDSolver
 from vrp_rpd.utils import simulate_solution
 
-from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_bays29_grid, bfs_path
+from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_physical_grid, bfs_path
 from vrp_rpd.agv_testbed.instance_builder import build_vrp_instance, solver_index_to_ws_id
 
 
@@ -201,14 +202,46 @@ def run_heuristics(
     return best
 
 
+def run_brkga(
+    grid: WarehouseGrid,
+    num_agents: int = 3,
+    resources_per_agent: int = 5,
+    allow_mixed: bool = True,
+    **solver_kwargs,
+) -> SolverResult:
+    """
+    Run the full BRKGA solver (vrp_rpd.solver.VRPRPDSolver) — warm-started
+    from construction heuristics, parallel GPU/CPU islands, GP gene
+    injection — instead of just the bare construction heuristics.
+
+    **solver_kwargs are passed straight through to VRPRPDSolver (e.g.
+    total_generations, num_gpus, num_cpu_workers, use_gp).
+    """
+    instance = build_vrp_instance(grid, num_agents, resources_per_agent)
+
+    solver = VRPRPDSolver(instance=instance, allow_mixed=allow_mixed, **solver_kwargs)
+    outcome = solver.solve()
+
+    if outcome.get("best_chromosome") is None:
+        raise RuntimeError(f"BRKGA solver produced no usable solution: {outcome}")
+
+    tours = decode_chromosome(outcome["best_chromosome"], instance, allow_mixed=allow_mixed)
+    result = _build_result(f"BRKGA ({outcome.get('source', 'ga')})", tours, instance, grid)
+
+    print(f"\nBRKGA solve_time={outcome.get('solve_time', 0):.1f}s  "
+          f"reported_makespan={outcome.get('makespan', float('nan')):.1f}  "
+          f"resimulated_makespan={result.makespan:.1f}")
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Quick test
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    base = Path(__file__).parent.parent / "vrp_rpd" / "datasets" / "bays29"
-    grid = load_bays29_grid(base, variant="base", seed=42)
+    import numpy as np
+    grid = load_physical_grid(rng=np.random.default_rng(42))
 
-    result = run_heuristics(grid, num_agents=3, resources_per_agent=5)
+    result = run_heuristics(grid, num_agents=4, resources_per_agent=3)
     result.summary()
 
     print("Priority order (for MAPF):", result.priority_order())

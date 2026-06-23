@@ -39,7 +39,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from vrp_rpd.agv_testbed.grid_env import load_dataset_grid, WarehouseGrid
 from vrp_rpd.agv_testbed.vrp_solver import run_heuristics, SolverResult
-from vrp_rpd.agv_testbed.mapf_solver import solve_mapf, MAPFResult
+from vrp_rpd.agv_testbed.mapf_solver import solve_mapf, MAPFResult, ReservationTable, _astar_timed
+from vrp_rpd.agv_testbed.instance_builder import tours_to_grid_paths
 from vrp_rpd.agv_testbed.pipeline import run_pipeline, PipelineResult
 
 
@@ -68,6 +69,8 @@ class AgentMetric:
     n_pickups: int
     mapf_steps: int          # total timesteps in MAPF path (includes waits)
     mapf_done_t: int         # timestep when agent reaches final depot
+    conflict_delay: float    # MAPF arrival - VRP arrival at this agent's last stop
+    mapf_completion: float   # completion_time + conflict_delay
 
 
 @dataclass
@@ -90,6 +93,10 @@ class RunResult:
     mapf_iterations: int
     mapf_max_timestep: int              # wall-clock steps in collision-free execution
     mapf_conflicts_remaining: int
+
+    # MAPF + processing time (Layer 2 with dropoff processing delays added back in)
+    mapf_makespan_with_proc: float = 0.0
+    makespan_gap: float = 0.0           # mapf_makespan_with_proc - vrp_makespan
 
     # Per-agent detail
     agents: List[AgentMetric] = field(default_factory=list)
@@ -134,6 +141,15 @@ def run_one(
     mapf = result.mapf_result
     wall = time.time() - t0
 
+    # Baseline (no-conflict) paths: same A* MAPF uses, but with an empty
+    # reservation table — gives each agent's hop count if it had the grid
+    # to itself, directly comparable to its actual (post-MAPF) path length.
+    visit_seqs = tours_to_grid_paths(
+        {aid: plan.events for aid, plan in vrp.agents.items()}, vrp.grid
+    )
+    spur_adj = vrp.grid.spur_adjacency()
+    ws_set = set(vrp.grid.workstation_ids)
+
     # Per-agent metrics + compute MAPF wait steps
     agent_metrics = []
     total_waits = 0
@@ -142,15 +158,19 @@ def run_one(
         mapf_steps = len(tp.path) if tp and tp.path else 0
         mapf_done_t = tp.path[-1][1] if tp and tp.path else 0
 
-        # Minimum hops = sum of BFS distances along planned visit sequence
-        visit_seq = plan.visit_sequence
-        min_hops = sum(
-            int(result.vrp_result.grid.dist[visit_seq[i], visit_seq[i+1]])
-            for i in range(len(visit_seq) - 1)
-        )
-        # Wait steps = extra steps added by MAPF beyond the minimum path
+        # Minimum hops = no-conflict A* path length for this agent alone
+        baseline_path = _astar_timed(visit_seqs[aid], ReservationTable(), spur_adj, ws_set)
+        min_hops = (len(baseline_path) - 1) if baseline_path else 0
+
+        # Wait steps = extra steps added by MAPF beyond the minimum path.
+        # This is purely the conflict-avoidance delay for this agent — the
+        # VRP-planned drop/pick times and processing times are unchanged,
+        # MAPF only adds waiting to avoid sharing a cell with another agent.
         wait_steps = max(0, mapf_steps - 1 - min_hops)
         total_waits += wait_steps
+
+        conflict_delay = float(wait_steps)
+        mapf_completion = plan.completion_time + conflict_delay
 
         agent_metrics.append(AgentMetric(
             agent_id=aid,
@@ -159,7 +179,13 @@ def run_one(
             n_pickups=sum(1 for _, op, _ in plan.events if op == 'P'),
             mapf_steps=mapf_steps,
             mapf_done_t=mapf_done_t,
+            conflict_delay=conflict_delay,
+            mapf_completion=mapf_completion,
         ))
+
+    mapf_makespan_with_proc = max(
+        (a.mapf_completion for a in agent_metrics), default=0.0
+    )
 
     run = RunResult(
         dataset=dataset,
@@ -176,6 +202,8 @@ def run_one(
         mapf_iterations=result.iterations,
         mapf_max_timestep=mapf.max_timestep(),
         mapf_conflicts_remaining=len(mapf.conflicts),
+        mapf_makespan_with_proc=mapf_makespan_with_proc,
+        makespan_gap=mapf_makespan_with_proc - vrp.makespan,
         total_wait_steps=total_waits,
         agents=agent_metrics,
         wall_time_s=round(wall, 2),
@@ -196,7 +224,8 @@ def _print_verbose(r: RunResult):
         print(f"    Agent {a.agent_id} [priority #{priority_rank}]: "
               f"VRP done@{a.completion_time:.0f}  "
               f"drops={a.n_dropoffs}  picks={a.n_pickups}  "
-              f"MAPF total steps={a.mapf_steps}  MAPF done@hop={a.mapf_done_t}")
+              f"MAPF total steps={a.mapf_steps}  MAPF done@hop={a.mapf_done_t}  "
+              f"conflict_delay={a.conflict_delay:.0f} -> {a.mapf_completion:.0f}")
 
 
 def _print_row(r: RunResult):
@@ -243,6 +272,40 @@ def print_summary_table(results: List[RunResult]):
     print(f"  Avg waits per run              : {total_waits/len(results):.1f}")
     print(f"  Convergence rate               : {conv_rate:.0f}% ({sum(1 for r in results if r.mapf_converged)}/{len(results)} runs)")
     print(f"  Total wall time                : {sum(r.wall_time_s for r in results):.1f}s")
+
+
+def print_makespan_table(results: List[RunResult]):
+    """
+    VRP-planned makespan vs. the makespan after MAPF conflict resolution.
+
+    Job assignments, drop/pick order, and processing times are unchanged by
+    MAPF — it only adds waiting so agents don't share a cell. Each agent's
+    extra wait steps (mapf_done_t - no-conflict baseline) are added to its
+    VRP completion time; the gap is how much that costs the overall makespan.
+    """
+    width = 70
+    print("\n" + "=" * width)
+    print("MAKESPAN: VRP PLAN vs. MAPF CONFLICT-RESOLVED")
+    print(
+        f"  {'Dataset':<10} {'Var':<6} "
+        f"{'VRP':>8} {'MAPF-resolved':>14} {'Gap':>7}  Changed?"
+    )
+    print("-" * width)
+
+    prev_ds = None
+    for r in results:
+        if prev_ds and r.dataset != prev_ds:
+            print()
+        gap = r.makespan_gap
+        changed = "same" if abs(gap) < 1e-6 else f"+{gap:.1f}"
+        print(
+            f"  {r.dataset:<10} {r.variant:<6} "
+            f"{r.vrp_makespan:>8.1f} {r.mapf_makespan_with_proc:>14.1f} "
+            f"{gap:>7.1f}  {changed}"
+        )
+        prev_ds = r.dataset
+
+    print("=" * width)
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -304,6 +367,7 @@ def main():
         return
 
     print_summary_table(all_results)
+    print_makespan_table(all_results)
 
     if args.output:
         out = {

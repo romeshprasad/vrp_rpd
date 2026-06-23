@@ -21,7 +21,7 @@ import heapq
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set, Tuple
 
-from vrp_rpd.agv_testbed.grid_env import neighbors, N_NODES, DEPOT_NODE
+from vrp_rpd.agv_testbed.grid_env import neighbors, N_NODES, DEPOT_NODE, GridTopology, DEFAULT_TOPOLOGY
 
 
 # ---------------------------------------------------------------------------
@@ -105,18 +105,20 @@ class ReservationTable:
 # A* on time-expanded graph
 # ---------------------------------------------------------------------------
 
-def _node_heuristic(node: int, dst: int, spur_adj: Dict[int, List[int]]) -> int:
+def _node_heuristic(node: int, dst: int, spur_adj: Dict[int, List[int]], topology: GridTopology) -> int:
     """
     Manhattan distance heuristic.  Virtual nodes (spur entry / workstation)
     inherit the grid position of their transit anchor for heuristic purposes.
     """
+    n_nodes = topology.n_nodes
+
     def grid_pos(n):
-        if n < N_NODES:
-            return n // 10, n % 10
+        if n < n_nodes:
+            return topology.node_rc(n)
         # For virtual nodes find the transit node in spur_adj and use its position
         for nb in spur_adj.get(n, []):
-            if nb < N_NODES:
-                return nb // 10, nb % 10
+            if nb < n_nodes:
+                return topology.node_rc(nb)
         return 0, 0
 
     r1, c1 = grid_pos(node)
@@ -132,17 +134,20 @@ def _astar_segment(
     workstation_ids: Set[int],
     start_t: int,
     max_t: int,
+    topology: GridTopology = DEFAULT_TOPOLOGY,
 ) -> List[Tuple[int, int]]:
     """
     A* from src to dst starting at start_t.
-    Transit nodes (< N_NODES) use neighbors() for movement.
-    Virtual nodes (>= N_NODES) use spur_adj only.
+    Transit nodes (< topology.n_nodes) use topology.neighbors() for movement.
+    Virtual nodes (>= topology.n_nodes) use spur_adj only.
     """
     if src == dst:
         return [(src, start_t)]
 
+    n_nodes = topology.n_nodes
+
     def h(n):
-        return _node_heuristic(n, dst, spur_adj)
+        return _node_heuristic(n, dst, spur_adj, topology)
 
     came_from: List[Optional[int]] = [None]
     node_t_record: List[Tuple[int, int]] = [(src, start_t)]
@@ -169,15 +174,15 @@ def _astar_segment(
             continue
 
         # Neighbours:
-        #   transit nodes (< N_NODES) : grid neighbors + spur entry connections
+        #   transit nodes (< n_nodes) : grid neighbors + spur entry connections
         #   spur entry nodes           : their transit anchor + their workstation
         #   workstation nodes          : only their spur entry (and only if dst==workstation)
         if node in workstation_ids and node != dst and node != src:
             # Arrived at a workstation that is neither our destination nor start — dead end
             continue
 
-        if node < N_NODES:
-            all_nb = neighbors(node) + spur_adj.get(node, [])
+        if node < n_nodes:
+            all_nb = topology.neighbors(node) + spur_adj.get(node, [])
         else:
             all_nb = spur_adj.get(node, [])
 
@@ -218,6 +223,7 @@ def _astar_timed(
     workstation_ids: Set[int],
     start_t: int = 0,
     max_t: int = 2000,
+    topology: GridTopology = DEFAULT_TOPOLOGY,
 ) -> List[Tuple[int, int]]:
     """A* through a sequence of waypoints, respecting reservations."""
     full_path: List[Tuple[int, int]] = []
@@ -228,7 +234,7 @@ def _astar_timed(
         dst = waypoints[seg + 1]
         # src must match where the path actually is
         actual_src = full_path[-1][0] if full_path else src
-        seg_path = _astar_segment(actual_src, dst, reservations, spur_adj, workstation_ids, t_offset, max_t)
+        seg_path = _astar_segment(actual_src, dst, reservations, spur_adj, workstation_ids, t_offset, max_t, topology)
         if not seg_path:
             # A* failed — stay at actual_src, signal failure by returning what we have
             break
@@ -289,6 +295,7 @@ def solve_mapf(
     spur_adj: Dict[int, List[int]] = None,
     workstation_ids: Set[int] = None,
     max_t: int = 2000,
+    topology: GridTopology = DEFAULT_TOPOLOGY,
 ) -> MAPFResult:
     """
     Prioritized A* MAPF.
@@ -301,6 +308,8 @@ def solve_mapf(
     priority_order  : agent ids sorted highest priority first.
     spur_adj        : adjacency dict from WarehouseGrid.spur_adjacency().
     max_t           : maximum timestep to search.
+    topology        : grid topology (rows/cols) — pass grid.topology when
+                      solving for a non-default-sized WarehouseGrid.
     """
     if spur_adj is None:
         spur_adj = {}
@@ -311,7 +320,7 @@ def solve_mapf(
 
     for agent_id in priority_order:
         waypoints = visit_sequences.get(agent_id, [DEPOT_NODE, DEPOT_NODE])
-        timed = _astar_timed(waypoints, reservations, spur_adj, ws_set, start_t=0, max_t=max_t)
+        timed = _astar_timed(waypoints, reservations, spur_adj, ws_set, start_t=0, max_t=max_t, topology=topology)
         tp = TimedPath(agent_id=agent_id, path=timed)
         reservations.reserve_path(tp)
         paths[agent_id] = tp

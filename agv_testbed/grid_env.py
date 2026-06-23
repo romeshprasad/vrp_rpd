@@ -5,103 +5,142 @@ Warehouse Grid Environment
 Node (r, c) has integer id  r * COLS + c.
 Depot is always node 0 = (row=0, col=0) = bottom-left corner.
 
-Spur geometry
--------------
-Workstations are physical installations inside cells — they do NOT occupy
-transit grid nodes.  Each workstation gets two virtual node IDs outside 0–99:
+Spur geometry — matches the physical Alvik test grid
+------------------------------------------------------
+Each workstation sits at the midpoint of an EDGE between two adjacent
+transit nodes (its `between_nodes` pair, e.g. (8, 9)), not anchored to a
+single node. The spur runs south from that midpoint into the workstation.
+Each workstation gets two virtual node IDs outside 0–63:
 
   Spur entry  : ID = N_NODES + i          (i = workstation index)
   Workstation : ID = N_NODES + n_ws + i   (i = workstation index)
 
-The spur entry sits at the top edge of the cell (connected to the transit
-grid node directly above the cell's grid position with cost 1).
-The workstation sits at the cell center (connected only to its spur entry
-with cost SPUR_LEN).
+The spur entry connects to BOTH endpoints of its between_nodes edge (a
+robot can approach from either side), and to its workstation (cost
+SPUR_LEN). Direction (south) only matters to the physical command bridge
+(path_to_commands.py), not to the grid/solver graph itself.
 
 This separation guarantees:
-  - Transit graph (0–99) is always clean — robots route freely.
-  - No ID collision even when workstations are in adjacent rows/columns.
-  - Any grid node can host a workstation regardless of neighbours.
+  - Transit graph (0–63) is always clean — robots route freely.
+  - No ID collision regardless of workstation placement.
+  - Distance to a workstation is the cheaper of its two edge endpoints.
 """
 
 from __future__ import annotations
 import json
+from dataclasses import dataclass
 import numpy as np
 from collections import deque
 from pathlib import Path
 
-ROWS    = 8
-COLS    = 8
-N_NODES = ROWS * COLS   # 64 transit nodes
 DEPOT_NODE = 0          # (row=0, col=0) — bottom-left
 SPUR_LEN   = 5          # half a cell — fixed spur length (transit→entry = 1, entry→ws = SPUR_LEN)
 
 
 # ---------------------------------------------------------------------------
-# Transit grid helpers  (operate on IDs 0–99 only)
+# Grid topology — parameterized so grid size isn't hardcoded module state.
 # ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class GridTopology:
+    """4-connected rows x cols transit grid. node_id = row*cols + col."""
+    rows: int
+    cols: int
+
+    @property
+    def n_nodes(self) -> int:
+        return self.rows * self.cols
+
+    def node_id(self, r: int, c: int) -> int:
+        return r * self.cols + c
+
+    def node_rc(self, nid: int) -> tuple[int, int]:
+        return nid // self.cols, nid % self.cols
+
+    def neighbors(self, nid: int) -> list[int]:
+        """4-connected transit neighbours of a transit node."""
+        r, c = self.node_rc(nid)
+        result = []
+        if r > 0:             result.append(self.node_id(r - 1, c))
+        if r < self.rows - 1: result.append(self.node_id(r + 1, c))
+        if c > 0:             result.append(self.node_id(r, c - 1))
+        if c < self.cols - 1: result.append(self.node_id(r, c + 1))
+        return result
+
+    def bfs_distances(self, source: int) -> np.ndarray:
+        """BFS shortest-hop distances from source to all transit nodes."""
+        dist = np.full(self.n_nodes, -1, dtype=np.int32)
+        dist[source] = 0
+        q = deque([source])
+        while q:
+            u = q.popleft()
+            for v in self.neighbors(u):
+                if dist[v] == -1:
+                    dist[v] = dist[u] + 1
+                    q.append(v)
+        return dist
+
+    def bfs_path(self, source: int, target: int) -> list[int]:
+        """Shortest transit-grid path from source to target (node IDs)."""
+        if source == target:
+            return [source]
+        parent = {source: None}
+        q = deque([source])
+        while q:
+            u = q.popleft()
+            for v in self.neighbors(u):
+                if v not in parent:
+                    parent[v] = u
+                    if v == target:
+                        path, cur = [], v
+                        while cur is not None:
+                            path.append(cur)
+                            cur = parent[cur]
+                        return path[::-1]
+                    q.append(v)
+        return []
+
+    def build_distance_matrix(self) -> np.ndarray:
+        """(n_nodes, n_nodes) BFS shortest-path distance matrix for transit nodes."""
+        D = np.zeros((self.n_nodes, self.n_nodes), dtype=np.int32)
+        for src in range(self.n_nodes):
+            D[src] = self.bfs_distances(src)
+        return D
+
+
+# Default topology + thin module-level wrappers, preserving every existing
+# `from grid_env import neighbors, N_NODES, ROWS, COLS` import used by
+# mapf_solver.py, instance_builder.py, AGV-Line-Following-Factory/*.py.
+# UI-built grids of other sizes use GridTopology(rows, cols) directly instead.
+DEFAULT_TOPOLOGY = GridTopology(rows=8, cols=8)
+ROWS    = DEFAULT_TOPOLOGY.rows
+COLS    = DEFAULT_TOPOLOGY.cols
+N_NODES = DEFAULT_TOPOLOGY.n_nodes
+
 
 def node_id(r: int, c: int) -> int:
-    return r * COLS + c
+    return DEFAULT_TOPOLOGY.node_id(r, c)
 
 def node_rc(nid: int):
-    """Row, col for a transit node (0–99)."""
-    return nid // COLS, nid % COLS
+    """Row, col for a transit node on the default 8x8 grid."""
+    return DEFAULT_TOPOLOGY.node_rc(nid)
 
 def neighbors(nid: int) -> list[int]:
-    """4-connected transit neighbours of a transit node."""
-    r, c = node_rc(nid)
-    result = []
-    if r > 0:        result.append(node_id(r - 1, c))
-    if r < ROWS - 1: result.append(node_id(r + 1, c))
-    if c > 0:        result.append(node_id(r, c - 1))
-    if c < COLS - 1: result.append(node_id(r, c + 1))
-    return result
+    """4-connected transit neighbours of a transit node on the default 8x8 grid."""
+    return DEFAULT_TOPOLOGY.neighbors(nid)
 
-
-# ---------------------------------------------------------------------------
-# BFS on transit grid
-# ---------------------------------------------------------------------------
 
 def bfs_distances(source: int) -> np.ndarray:
-    """BFS shortest-hop distances from source to all 100 transit nodes."""
-    dist = np.full(N_NODES, -1, dtype=np.int32)
-    dist[source] = 0
-    q = deque([source])
-    while q:
-        u = q.popleft()
-        for v in neighbors(u):
-            if dist[v] == -1:
-                dist[v] = dist[u] + 1
-                q.append(v)
-    return dist
+    """BFS shortest-hop distances from source, on the default 8x8 grid."""
+    return DEFAULT_TOPOLOGY.bfs_distances(source)
 
 def bfs_path(source: int, target: int) -> list[int]:
-    """Shortest transit-grid path from source to target (node IDs)."""
-    if source == target:
-        return [source]
-    parent = {source: None}
-    q = deque([source])
-    while q:
-        u = q.popleft()
-        for v in neighbors(u):
-            if v not in parent:
-                parent[v] = u
-                if v == target:
-                    path, cur = [], v
-                    while cur is not None:
-                        path.append(cur)
-                        cur = parent[cur]
-                    return path[::-1]
-                q.append(v)
-    return []
+    """Shortest transit-grid path from source to target, on the default 8x8 grid."""
+    return DEFAULT_TOPOLOGY.bfs_path(source, target)
 
 def build_distance_matrix() -> np.ndarray:
-    """100×100 BFS shortest-path distance matrix for transit nodes."""
-    D = np.zeros((N_NODES, N_NODES), dtype=np.int32)
-    for src in range(N_NODES):
-        D[src] = bfs_distances(src)
-    return D
+    """Distance matrix for the default 8x8 grid."""
+    return DEFAULT_TOPOLOGY.build_distance_matrix()
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +149,7 @@ def build_distance_matrix() -> np.ndarray:
 
 class WarehouseGrid:
     """
-    Warehouse with spur geometry.
+    Warehouse with edge-midpoint spur geometry (matches the physical Alvik grid).
 
     Virtual node ID scheme (given n workstations):
       Transit nodes  :   0 .. N_NODES-1          (the 8×8 grid)
@@ -119,43 +158,42 @@ class WarehouseGrid:
 
     Attributes
     ----------
-    dist            : (100,100) BFS transit distances
+    dist            : (64,64) BFS transit distances
     depot           : int — depot transit node (always 0)
-    cell_nodes      : list[int] — transit grid node each workstation is mapped to
-                      (the grid node whose cell contains the workstation)
+    between_nodes   : list[tuple[int,int]] — the two transit nodes each
+                      workstation's spur entry sits between (its edge)
     spur_entry_ids  : list[int] — virtual spur entry node IDs
     workstation_ids : list[int] — virtual workstation node IDs
     processing_times: list[float]
-    spur_transit_nodes : list[int] — transit node each spur entry connects to
-                         (grid node directly above the cell_node)
     """
 
     def __init__(
         self,
-        cell_nodes: list[int],
+        between_nodes: list[tuple[int, int]],
         processing_times: list[float],
         dist: np.ndarray | None = None,
+        topology: GridTopology | None = None,
     ):
-        assert len(cell_nodes) == len(processing_times)
-        assert DEPOT_NODE not in cell_nodes, "depot cannot host a workstation"
+        self.topology = topology if topology is not None else DEFAULT_TOPOLOGY
 
-        n = len(cell_nodes)
+        assert len(between_nodes) == len(processing_times)
+        for a, b in between_nodes:
+            assert DEPOT_NODE not in (a, b), "depot cannot host a workstation"
+            assert b in self.topology.neighbors(a), (
+                f"({a},{b}) is not a transit-grid edge on a "
+                f"{self.topology.rows}x{self.topology.cols} grid"
+            )
+
+        n = len(between_nodes)
         self.depot            = DEPOT_NODE
-        self.cell_nodes       = list(cell_nodes)          # transit grid positions
+        self.between_nodes    = list(between_nodes)
         self.processing_times = list(processing_times)
-        self.dist             = dist if dist is not None else build_distance_matrix()
+        self.dist             = dist if dist is not None else self.topology.build_distance_matrix()
 
         # Virtual IDs
-        self.spur_entry_ids  = [N_NODES + i       for i in range(n)]
-        self.workstation_ids = [N_NODES + n + i   for i in range(n)]
-
-        # Each spur entry connects to the transit node directly above the cell node.
-        # If cell_node is in the top row, use the cell_node itself (spur stays within row).
-        self.spur_transit_nodes = []
-        for g in cell_nodes:
-            r, c = node_rc(g)
-            above = node_id(min(r + 1, ROWS - 1), c)
-            self.spur_transit_nodes.append(above)
+        n_nodes = self.topology.n_nodes
+        self.spur_entry_ids  = [n_nodes + i       for i in range(n)]
+        self.workstation_ids = [n_nodes + n + i   for i in range(n)]
 
         # Convenience: sets for fast membership tests
         self._spur_entry_set  = set(self.spur_entry_ids)
@@ -172,19 +210,23 @@ class WarehouseGrid:
     def spur_adjacency(self) -> dict[int, list[int]]:
         """
         Adjacency dict for all spur edges (bidirectional):
-          transit_node  <-> spur_entry   (cost 1 hop)
-          spur_entry    <-> workstation  (cost SPUR_LEN hops, but modelled as 1 step here;
-                                          the distance matrix handles the cost for VRP)
+          transit_node_a <-> spur_entry   (cost 1 hop, either edge endpoint)
+          transit_node_b <-> spur_entry
+          spur_entry      <-> workstation  (cost SPUR_LEN hops, modelled as
+                                            1 step here; the distance matrix
+                                            handles the cost for VRP)
         Returns {node_id: [neighbour_id, ...]} for virtual nodes only.
         Transit↔transit edges are handled by neighbors() separately.
         """
         adj: dict[int, list[int]] = {}
-        for entry_id, ws_id, transit_id in zip(
-            self.spur_entry_ids, self.workstation_ids, self.spur_transit_nodes
+        for entry_id, ws_id, (a, b) in zip(
+            self.spur_entry_ids, self.workstation_ids, self.between_nodes
         ):
-            # transit <-> spur entry
-            adj.setdefault(transit_id, []).append(entry_id)
-            adj.setdefault(entry_id,   []).append(transit_id)
+            # both edge endpoints <-> spur entry
+            adj.setdefault(a, []).append(entry_id)
+            adj.setdefault(entry_id, []).append(a)
+            adj.setdefault(b, []).append(entry_id)
+            adj.setdefault(entry_id, []).append(b)
             # spur entry <-> workstation
             adj.setdefault(entry_id, []).append(ws_id)
             adj.setdefault(ws_id,    []).append(entry_id)
@@ -206,23 +248,34 @@ class WarehouseGrid:
         (n+1)×(n+1) distance matrix.  Index 0 = depot, 1..n = workstations.
 
         All transit distances are BFS hops.  Visiting a workstation adds:
-          +1       : transit → spur_entry
+          +1       : transit → spur_entry (from whichever edge endpoint is nearer)
           +SPUR_LEN: spur_entry → workstation center
-        So each workstation visit adds (1 + SPUR_LEN) each way.
+        So each workstation visit adds (1 + SPUR_LEN) each way, computed
+        from the cheaper of the workstation's two edge endpoints.
         """
-        n = len(self.cell_nodes)
+        n = len(self.between_nodes)
         size = n + 1
         D = np.zeros((size, size), dtype=np.float64)
         spur_cost = 1 + SPUR_LEN   # transit→entry + entry→ws
+
+        def anchor_dist(u: int, idx: int) -> float:
+            """Distance from transit node u to workstation idx's nearer edge endpoint."""
+            a, b = self.between_nodes[idx]
+            return min(float(self.dist[u, a]), float(self.dist[u, b]))
 
         for i in range(size):
             for j in range(size):
                 if i == j:
                     continue
-                # Map solver index to transit anchor node
-                u = self.depot          if i == 0 else self.spur_transit_nodes[i - 1]
-                v = self.depot          if j == 0 else self.spur_transit_nodes[j - 1]
-                grid_dist = float(self.dist[u, v])
+                if i == 0 and j == 0:
+                    grid_dist = 0.0
+                elif i == 0:
+                    grid_dist = anchor_dist(self.depot, j - 1)
+                elif j == 0:
+                    grid_dist = anchor_dist(self.depot, i - 1)
+                else:
+                    a_i, b_i = self.between_nodes[i - 1]
+                    grid_dist = min(anchor_dist(a_i, j - 1), anchor_dist(b_i, j - 1))
                 cost_i = 0 if i == 0 else spur_cost
                 cost_j = 0 if j == 0 else spur_cost
                 D[i, j] = grid_dist + cost_i + cost_j
@@ -231,8 +284,8 @@ class WarehouseGrid:
     def __repr__(self):
         return (
             f"WarehouseGrid(depot={self.depot}, "
-            f"n_workstations={len(self.cell_nodes)}, "
-            f"grid={ROWS}x{COLS})"
+            f"n_workstations={len(self.between_nodes)}, "
+            f"grid={self.topology.rows}x{self.topology.cols})"
         )
 
 
@@ -240,84 +293,132 @@ class WarehouseGrid:
 # Factory helpers
 # ---------------------------------------------------------------------------
 
-def _load_proc_times(jobs_file: Path) -> list[float]:
-    with open(jobs_file) as f:
-        data = json.load(f)
-    return [float(t) for t in (data.get("processing_times") or data["job_times"])]
+# ---------------------------------------------------------------------------
+# Factory: build grid from the physical workstations.json layout
+# ---------------------------------------------------------------------------
+
+WORKSTATIONS_JSON = Path(__file__).resolve().parent.parent / "AGV-Line-Following-Factory" / "workstations.json"
 
 
-def _place_cells(n: int, rng: np.random.Generator) -> list[int]:
+def load_physical_grid(
+    workstations_path: str | Path = WORKSTATIONS_JSON,
+    proc_times: list[float] | None = None,
+    rng: np.random.Generator | None = None,
+    proc_time_range: tuple[float, float] = (5.0, 20.0),
+) -> WarehouseGrid:
     """
-    Choose n distinct transit nodes to host workstations.
-    Exclude:
-      - depot (node 0)
-      - top row (row ROWS-1): no row above for the spur transit node
-      - right column (col COLS-1): no column to the right for the cell center offset
+    Build a WarehouseGrid from the physical AGV-Line-Following-Factory
+    workstations.json layout (real, fixed positions — not randomly placed).
+
+    workstations.json's between_nodes are 1-indexed (node 1 = grid (0,0));
+    this module's node IDs are 0-indexed, so 1 is subtracted on load.
+
+    proc_times: optional explicit list (must match the JSON's workstation
+    count and order). If omitted, random processing times are drawn from
+    proc_time_range using `rng` (or a fresh default RNG).
     """
-    candidates = [
-        node_id(r, c)
-        for r in range(ROWS - 1)      # exclude top row
-        for c in range(COLS - 1)      # exclude right column
-        if node_id(r, c) != DEPOT_NODE
+    data = json.loads(Path(workstations_path).read_text())
+    ws_list = data["workstations"]
+    between_nodes = [
+        (ws["between_nodes"][0] - 1, ws["between_nodes"][1] - 1)
+        for ws in ws_list
     ]
-    chosen = rng.choice(candidates, size=n, replace=False).tolist()
-    return sorted(chosen)
+
+    if proc_times is None:
+        rng = rng if rng is not None else np.random.default_rng()
+        lo, hi = proc_time_range
+        proc_times = rng.uniform(lo, hi, size=len(ws_list)).tolist()
+
+    assert len(proc_times) == len(between_nodes), (
+        f"proc_times length ({len(proc_times)}) must match "
+        f"workstation count ({len(between_nodes)})"
+    )
+
+    return WarehouseGrid(
+        between_nodes=between_nodes,
+        processing_times=proc_times,
+        dist=build_distance_matrix(),
+    )
 
 
 # ---------------------------------------------------------------------------
-# Factory: build grid from a bays29-style dataset
+# Factory: build a grid from UI input (arbitrary grid size + clicked
+# workstation edges) — used by the webapp, not tied to workstations.json.
 # ---------------------------------------------------------------------------
 
-def load_bays29_grid(
-    dataset_dir: str | Path,
-    variant: str = "base",
-    seed: int = 42,
-    time_scale: float = 1.0,
+def build_grid_from_ui(
+    rows: int,
+    cols: int,
+    workstation_edges: list[tuple[int, int]],
+    processing_times: list[float] | None = None,
+    rng: np.random.Generator | None = None,
+    proc_time_range: tuple[float, float] = (5.0, 20.0),
 ) -> WarehouseGrid:
-    dataset_dir = Path(dataset_dir)
-    jobs_file   = dataset_dir / variant / "job_times.json"
-    with open(jobs_file) as f:
-        data = json.load(f)
-    proc_times  = [t * time_scale for t in data["processing_times"]]
-    rng         = np.random.default_rng(seed)
-    cell_nodes  = _place_cells(len(proc_times), rng)
-    return WarehouseGrid(cell_nodes=cell_nodes, processing_times=proc_times,
-                         dist=build_distance_matrix())
+    """
+    Build a WarehouseGrid for an arbitrary rows x cols grid with workstations
+    placed on caller-supplied edges (0-indexed node id pairs, e.g. from a
+    UI where the user clicks two adjacent cells to place a workstation).
 
+    Raises ValueError (not a bare AssertionError) on invalid input, with a
+    message suitable for showing directly to a non-coder user — e.g. a
+    workstation edge that isn't grid-adjacent, or that includes the depot.
+    """
+    if rows < 2 or cols < 2:
+        raise ValueError(f"Grid must be at least 2x2, got {rows}x{cols}")
+    if not workstation_edges:
+        raise ValueError("At least one workstation is required")
 
-# ---------------------------------------------------------------------------
-# Generic factory: works for any dataset folder
-# ---------------------------------------------------------------------------
+    topology = GridTopology(rows=rows, cols=cols)
+    n_nodes = topology.n_nodes
 
-AGV_DATASETS_ROOT = Path(__file__).parent / "datasets"
+    seen_edges = set()
+    for a, b in workstation_edges:
+        if not (0 <= a < n_nodes and 0 <= b < n_nodes):
+            raise ValueError(
+                f"Workstation edge ({a},{b}) has a node outside the "
+                f"{rows}x{cols} grid (valid range: 0-{n_nodes - 1})"
+            )
+        if DEPOT_NODE in (a, b):
+            raise ValueError(f"Workstation edge ({a},{b}) cannot include the depot (node {DEPOT_NODE})")
+        if b not in topology.neighbors(a):
+            ra, ca = topology.node_rc(a)
+            rb, cb = topology.node_rc(b)
+            raise ValueError(
+                f"Workstation edge ({a},{b}) -- (row,col) ({ra},{ca}) and "
+                f"({rb},{cb}) -- is not adjacent on a {rows}x{cols} grid"
+            )
+        ra, ca = topology.node_rc(a)
+        rb, cb = topology.node_rc(b)
+        if ra != rb:
+            # The spur model (path_to_commands.py) assumes every workstation
+            # edge runs east-west, with the spur always heading south from
+            # the midpoint -- a north-south edge has no valid spur direction.
+            raise ValueError(
+                f"Workstation edge ({a},{b}) -- (row,col) ({ra},{ca}) and "
+                f"({rb},{cb}) -- runs north-south, but workstations must be "
+                f"on an east-west edge (same row) so the spur can run south"
+            )
+        edge_key = tuple(sorted((a, b)))
+        if edge_key in seen_edges:
+            raise ValueError(f"Workstation edge ({a},{b}) is listed more than once")
+        seen_edges.add(edge_key)
 
-
-def load_dataset_grid(
-    dataset_name: str | Path,
-    variant: str = "base",
-    seed: int = 42,
-    instance: int = 1,
-) -> WarehouseGrid:
-    p = Path(dataset_name)
-    dataset_dir = p if p.is_dir() else AGV_DATASETS_ROOT / str(dataset_name)
-    variant_dir = dataset_dir / variant
-
-    if variant in ("1R10", "1R20"):
-        jobs_file = variant_dir / f"job_times_{instance}.json"
-    else:
-        jobs_file = variant_dir / "job_times.json"
-
-    if not jobs_file.exists():
-        raise FileNotFoundError(
-            f"Dataset file not found: {jobs_file}\n"
-            f"Run: python3 agv_testbed/generate_datasets.py"
+    if processing_times is None:
+        rng = rng if rng is not None else np.random.default_rng()
+        lo, hi = proc_time_range
+        processing_times = rng.uniform(lo, hi, size=len(workstation_edges)).tolist()
+    elif len(processing_times) != len(workstation_edges):
+        raise ValueError(
+            f"processing_times length ({len(processing_times)}) must match "
+            f"workstation count ({len(workstation_edges)})"
         )
 
-    proc_times = _load_proc_times(jobs_file)
-    rng        = np.random.default_rng(seed)
-    cell_nodes = _place_cells(len(proc_times), rng)
-    return WarehouseGrid(cell_nodes=cell_nodes, processing_times=proc_times,
-                         dist=build_distance_matrix())
+    return WarehouseGrid(
+        between_nodes=workstation_edges,
+        processing_times=processing_times,
+        dist=topology.build_distance_matrix(),
+        topology=topology,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -325,18 +426,16 @@ def load_dataset_grid(
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    grid = load_dataset_grid("bays29", variant="base", seed=42)
+    grid = load_physical_grid(rng=np.random.default_rng(42))
     print(grid)
-    n = len(grid.cell_nodes)
-    print(f"Cell nodes (first 5)      : {grid.cell_nodes[:5]}")
+    n = len(grid.between_nodes)
+    print(f"Between-nodes (first 5)   : {grid.between_nodes[:5]}")
     print(f"Spur entry IDs (first 5)  : {grid.spur_entry_ids[:5]}")
     print(f"Workstation IDs (first 5) : {grid.workstation_ids[:5]}")
-    print(f"Spur transit nodes (first 5): {grid.spur_transit_nodes[:5]}")
+    print(f"Processing times (first 5): {[round(t, 1) for t in grid.processing_times[:5]]}")
     D = grid.solver_distance_matrix()
     print(f"Solver dist matrix shape  : {D.shape}")
-    print(f"depot->ws[0]: {D[0,1]:.0f}  "
-          f"(bfs={grid.dist[grid.depot, grid.spur_transit_nodes[0]]} + {1+SPUR_LEN})")
-    print(f"ws[0]->ws[1]: {D[1,2]:.0f}  "
-          f"(bfs={grid.dist[grid.spur_transit_nodes[0], grid.spur_transit_nodes[1]]} + {2*(1+SPUR_LEN)})")
+    print(f"depot->ws[0]: {D[0,1]:.0f}")
+    print(f"ws[0]->ws[1]: {D[1,2]:.0f}")
     adj = grid.spur_adjacency()
     print(f"Spur adj sample: entry {grid.spur_entry_ids[0]} -> {adj[grid.spur_entry_ids[0]]}")

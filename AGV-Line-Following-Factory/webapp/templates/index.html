@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AGV Grid Solver</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem; background: #fafafa; color: #222; }
+  h1 { font-size: 1.4rem; }
+  .layout { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .panel { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.5rem; }
+  label { display: block; margin: 0.5rem 0 0.2rem; font-size: 0.9rem; color: #444; }
+  input[type=number] { width: 5rem; padding: 0.3rem; }
+  button { margin-top: 1rem; padding: 0.5rem 1.2rem; background: #2a6df4; color: white;
+           border: none; border-radius: 5px; cursor: pointer; font-size: 0.95rem; }
+  button:hover { background: #1d54c4; }
+  button:disabled { background: #aaa; cursor: not-allowed; }
+  button.secondary { background: #777; }
+  button.secondary:hover { background: #555; }
+  /* Grid model: intersection DOTS (the robot's nodes, e.g. depot, the
+     8x8=64 transit nodes) are drawn at a fixed 34px pitch. Workstation
+     CELLS are the (rows-1)x(cols-1) gaps between dots, absolutely
+     positioned on top -- clicking a cell places/removes a workstation on
+     its top edge (the two dots directly above it), matching the physical
+     spur-always-enters-from-the-top convention. */
+  #grid-wrap { position: relative; margin-top: 1rem; }
+  .dot {
+    position: absolute; width: 10px; height: 10px; border-radius: 50%;
+    background: #999; transform: translate(-5px, -5px);
+  }
+  .dot.depot { background: #2a6df4; width: 14px; height: 14px; transform: translate(-7px, -7px); }
+  .grid-cell {
+    position: absolute; width: 30px; height: 30px; background: #e8e8e8;
+    border: 1px solid #ccc; cursor: pointer; user-select: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: #aaa;
+  }
+  .grid-cell:hover { background: #d0e0ff; }
+  .grid-cell.workstation { background: #43a047; color: white; }
+  .grid-cell.workstation:hover { background: #357a38; }
+  #edge-list { list-style: none; padding: 0; margin: 0.5rem 0; max-height: 180px; overflow-y: auto; }
+  #edge-list li { display: flex; justify-content: space-between; align-items: center;
+                  padding: 0.2rem 0; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+  #edge-list button { margin: 0; padding: 0.1rem 0.5rem; font-size: 0.75rem; background: #c0392b; }
+  #status { margin-top: 1rem; font-size: 0.9rem; }
+  #status.error { color: #c0392b; font-weight: 600; }
+  #status.busy { color: #b8860b; }
+  #results table { border-collapse: collapse; width: 100%; margin-top: 0.5rem; }
+  #results th, #results td { border: 1px solid #ddd; padding: 0.4rem 0.6rem; font-size: 0.85rem; text-align: left; }
+  #results th { background: #f0f0f0; }
+  .hint { color: #777; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<h1>AGV Grid &amp; Workstation Solver</h1>
+<p class="hint">
+  Pick a grid size, then click a bay (square) to place a workstation there —
+  its spur enters from the top edge of that bay, matching the physical
+  setup. Click a green bay again to remove it. Set agents/resources, then
+  Solve. Download the generated per-robot command scripts when done.
+</p>
+
+<div class="layout">
+
+  <div class="panel">
+    <h3>1. Grid size</h3>
+    <label>Rows <input type="number" id="rows" value="8" min="2" max="20"></label>
+    <label>Columns <input type="number" id="cols" value="8" min="2" max="20"></label>
+    <button id="build-grid-btn">Build grid</button>
+
+    <h3>2. Workstations (click a bay)</h3>
+    <div id="grid-wrap"></div>
+    <ul id="edge-list"></ul>
+
+    <h3>3. Agents &amp; resources</h3>
+    <label>Number of agents <input type="number" id="num-agents" value="4" min="1" max="20"></label>
+    <label>Resources per agent <input type="number" id="resources-per-agent" value="2" min="1" max="20"></label>
+    <label>Random seed (optional) <input type="number" id="seed" value="42"></label>
+
+    <button id="solve-btn" disabled>Solve</button>
+    <div id="status"></div>
+  </div>
+
+  <div class="panel" id="results-panel" style="display:none; min-width: 320px;">
+    <h3>Result</h3>
+    <div id="results"></div>
+    <button id="download-all-btn" class="secondary">Download all (.zip)</button>
+  </div>
+
+</div>
+
+<script>
+let rows = 8, cols = 8;
+let workstationEdges = [];   // [[a,b], ...] 0-indexed node ids, a/b adjacent on the same row
+let lastToken = null;
+let cellEls = {};            // "r,c" -> DOM element for each of the (rows-1)x(cols-1) bays
+
+const DOT_PITCH = 34;   // px between adjacent intersection dots
+const PAD = 10;         // px margin so dots/cells aren't clipped at the edges
+
+function nodeId(r, c) { return r * cols + c; }
+
+// Screen position for an intersection (r,c). Row 0 is drawn at the bottom,
+// matching the grid's actual (0,0)=bottom-left convention.
+function dotPos(r, c) {
+  return { x: PAD + c * DOT_PITCH, y: PAD + (rows - 1 - r) * DOT_PITCH };
+}
+
+function buildGrid() {
+  rows = parseInt(document.getElementById('rows').value);
+  cols = parseInt(document.getElementById('cols').value);
+  workstationEdges = [];
+  cellEls = {};
+
+  const wrap = document.getElementById('grid-wrap');
+  wrap.innerHTML = '';
+  wrap.style.width = `${PAD * 2 + (cols - 1) * DOT_PITCH}px`;
+  wrap.style.height = `${PAD * 2 + (rows - 1) * DOT_PITCH}px`;
+
+  // Intersection dots (purely visual — depot highlighted, others plain).
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const { x, y } = dotPos(r, c);
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (nodeId(r, c) === 0 ? ' depot' : '');
+      dot.style.left = `${x}px`;
+      dot.style.top = `${y}px`;
+      dot.title = nodeId(r, c) === 0 ? 'Depot' : `node ${nodeId(r, c)}`;
+      wrap.appendChild(dot);
+    }
+  }
+
+  // Bays: the (rows-1) x (cols-1) gaps between dots. Bay (r,c) sits between
+  // rows r/r+1 and cols c/c+1; its workstation edge is the TOP boundary —
+  // nodes (r+1,c) and (r+1,c+1) — matching the physical spur-from-top setup.
+  for (let r = 0; r < rows - 1; r++) {
+    for (let c = 0; c < cols - 1; c++) {
+      const { x, y } = dotPos(r + 1, c);  // top-left corner of this bay
+      const bay = document.createElement('div');
+      bay.className = 'grid-cell';
+      bay.style.left = `${x}px`;
+      bay.style.top = `${y}px`;
+      bay.dataset.r = r;
+      bay.dataset.c = c;
+      bay.addEventListener('click', () => onBayClick(r, c, bay));
+      cellEls[`${r},${c}`] = bay;
+      wrap.appendChild(bay);
+    }
+  }
+
+  renderEdgeList();
+  setStatus('');
+}
+
+function bayEdge(r, c) {
+  const a = nodeId(r + 1, c);
+  const b = nodeId(r + 1, c + 1);
+  return [a, b];
+}
+
+function edgeIndexForBay(r, c) {
+  const [a, b] = bayEdge(r, c);
+  return workstationEdges.findIndex(([x, y]) => (x === a && y === b) || (x === b && y === a));
+}
+
+function onBayClick(r, c, bayEl) {
+  const existingIdx = edgeIndexForBay(r, c);
+  if (existingIdx !== -1) {
+    removeEdge(existingIdx);
+    return;
+  }
+  workstationEdges.push(bayEdge(r, c));
+  renderEdgeList();
+  setStatus('');
+}
+
+function removeEdge(index) {
+  workstationEdges.splice(index, 1);
+  renderEdgeList();
+}
+
+function renderEdgeList() {
+  // Reset every bay to plain, then re-apply 'workstation' to bays that are
+  // part of a currently-placed edge — single source of truth so the grid
+  // highlighting can never drift from workstationEdges.
+  Object.values(cellEls).forEach(el => el.classList.remove('workstation'));
+  for (let r = 0; r < rows - 1; r++) {
+    for (let c = 0; c < cols - 1; c++) {
+      if (edgeIndexForBay(r, c) !== -1) {
+        cellEls[`${r},${c}`].classList.add('workstation');
+      }
+    }
+  }
+
+  const list = document.getElementById('edge-list');
+  list.innerHTML = '';
+  workstationEdges.forEach((edge, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>WS${String(i + 1).padStart(2, '0')}: nodes ${edge[0]}, ${edge[1]}</span>`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Remove';
+    btn.addEventListener('click', () => removeEdge(i));
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+  document.getElementById('solve-btn').disabled = workstationEdges.length === 0;
+}
+
+function setStatus(msg, kind) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = kind || '';
+}
+
+async function solve() {
+  const numAgents = parseInt(document.getElementById('num-agents').value);
+  const resourcesPerAgent = parseInt(document.getElementById('resources-per-agent').value);
+  const seed = parseInt(document.getElementById('seed').value) || 42;
+
+  setStatus('Solving… this can take 15-60+ seconds.', 'busy');
+  document.getElementById('solve-btn').disabled = true;
+  document.getElementById('results-panel').style.display = 'none';
+
+  try {
+    const resp = await fetch('/solve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rows, cols,
+        workstation_edges: workstationEdges,
+        num_agents: numAgents,
+        resources_per_agent: resourcesPerAgent,
+        seed,
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      setStatus(data.error || 'Solve failed.', 'error');
+      return;
+    }
+    lastToken = data.token;
+    renderResults(data);
+    setStatus(`Solved in ${data.iterations} iteration(s).`);
+  } catch (e) {
+    setStatus('Request failed: ' + e, 'error');
+  } finally {
+    document.getElementById('solve-btn').disabled = false;
+  }
+}
+
+function renderResults(data) {
+  const panel = document.getElementById('results-panel');
+  const el = document.getElementById('results');
+  let html = `<p><b>Makespan:</b> ${data.makespan}<br>
+              <b>MAPF max timestep:</b> ${data.mapf_max_timestep}</p>`;
+  data.agents.forEach(agent => {
+    html += `<h4>Agent ${agent.agent_id} → Alvik${agent.robot_number}
+             (done @ ${agent.completion_time}, ${agent.command_count} commands)</h4>`;
+    html += '<table><tr><th>Operation</th><th>Workstation</th></tr>';
+    agent.events.forEach(ev => {
+      html += `<tr><td>${ev.operation}</td><td>${ev.workstation_name}</td></tr>`;
+    });
+    html += '</table>';
+    html += `<p><a href="/download/${data.token}/${agent.robot_number}">Download generated_alvik${agent.robot_number}.txt</a></p>`;
+  });
+  el.innerHTML = html;
+  panel.style.display = 'block';
+}
+
+document.getElementById('build-grid-btn').addEventListener('click', buildGrid);
+document.getElementById('solve-btn').addEventListener('click', solve);
+document.getElementById('download-all-btn').addEventListener('click', () => {
+  if (lastToken) window.location.href = `/download/${lastToken}/all`;
+});
+
+buildGrid();
+</script>
+
+</body>
+</html>

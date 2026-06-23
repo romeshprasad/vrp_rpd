@@ -23,8 +23,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_bays29_grid, load_dataset_grid, bfs_path
-from vrp_rpd.agv_testbed.vrp_solver import SolverResult, run_heuristics
+from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_physical_grid, bfs_path
+from vrp_rpd.agv_testbed.vrp_solver import SolverResult, run_heuristics, run_brkga
 from vrp_rpd.agv_testbed.mapf_solver import MAPFResult, TimedPath, solve_mapf, detect_conflicts
 from vrp_rpd.agv_testbed.instance_builder import tours_to_grid_paths
 
@@ -54,31 +54,46 @@ def run_pipeline(
     resources_per_agent: int = 5,
     max_iterations: int = 5,
     seed: int = 42,
-    dataset_dir: Optional[Path] = None,
-    variant: str = "base",
+    use_brkga: bool = True,
+    brkga_kwargs: Optional[Dict] = None,
 ) -> PipelineResult:
     """
     Run VRP-RPD then MAPF iteratively until convergence.
 
-    The grid passed in is the initial placement. On conflict, the seed is
-    incremented and a new placement is generated from dataset_dir/variant.
-    If dataset_dir is None, the same grid is reused across iterations
-    (only the VRP solver will produce different routes via heuristic order).
+    The grid's workstation layout is fixed (physical positions from
+    workstations.json) — on conflict, the same grid is reused; with the full
+    BRKGA solver (use_brkga=True) each retry's internal randomness can still
+    produce different routes, unlike the deterministic construction heuristics.
+
+    use_brkga: if True (default), Layer 1 uses the full BRKGA solver
+    (vrp_rpd.solver.VRPRPDSolver) — warm-started, parallel islands, GP gene
+    injection. If False, falls back to the bare construction heuristics.
+    brkga_kwargs: passed through to VRPRPDSolver when use_brkga=True (e.g.
+    total_generations, num_gpus, use_gp).
     """
     vrp_result: Optional[SolverResult] = None
     mapf_result: Optional[MAPFResult] = None
     converged = False
     current_grid = grid
+    brkga_kwargs = brkga_kwargs or {}
 
     for iteration in range(1, max_iterations + 1):
         print(f"\n--- Iteration {iteration}/{max_iterations} (seed={seed}) ---")
 
-        # Layer 1: VRP-RPD — use current grid placement
-        vrp_result = run_heuristics(
-            current_grid,
-            num_agents=num_agents,
-            resources_per_agent=resources_per_agent,
-        )
+        # Layer 1: VRP-RPD
+        if use_brkga:
+            vrp_result = run_brkga(
+                current_grid,
+                num_agents=num_agents,
+                resources_per_agent=resources_per_agent,
+                **brkga_kwargs,
+            )
+        else:
+            vrp_result = run_heuristics(
+                current_grid,
+                num_agents=num_agents,
+                resources_per_agent=resources_per_agent,
+            )
         vrp_result.summary()
 
         # Layer 2: MAPF — expand visit sequences to include spur traversals
@@ -93,6 +108,7 @@ def run_pipeline(
             visit_seqs, priority,
             spur_adj=current_grid.spur_adjacency(),
             workstation_ids=set(current_grid.workstation_ids),
+            topology=current_grid.topology,
         )
 
         n_conf = len(mapf_result.conflicts)
@@ -110,10 +126,8 @@ def run_pipeline(
             conflicting.add(c.agent_i)
             conflicting.add(c.agent_j)
         seed += 1
-        print(f"Conflicting agents: {sorted(conflicting)} — retrying with seed={seed}")
-        if dataset_dir is not None:
-            current_grid = load_dataset_grid(dataset_dir, variant=variant, seed=seed)
-        # else: reuse same grid, VRP heuristics will differ by tie-breaking
+        print(f"Conflicting agents: {sorted(conflicting)} — retrying (seed={seed}, "
+              f"same fixed grid, heuristic tie-breaking may differ)")
 
     return PipelineResult(
         vrp_result=vrp_result,
@@ -127,10 +141,17 @@ def run_pipeline(
 # Quick test
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    base = Path(__file__).parent.parent / "vrp_rpd" / "datasets" / "bays29"
-    grid = load_bays29_grid(base, variant="base", seed=42)
+    import numpy as np
+    grid = load_physical_grid(rng=np.random.default_rng(42))
 
-    result = run_pipeline(grid, num_agents=3, resources_per_agent=5, max_iterations=5)
+    result = run_pipeline(
+        grid, num_agents=4, resources_per_agent=2, max_iterations=5,
+        use_brkga=True,
+        brkga_kwargs=dict(
+            total_generations=500, gens_per_cycle=100, use_gp=False,
+            num_gpus=0, num_cpu_workers=2,  # no working CUDA driver in this environment
+        ),
+    )
     result.summary()
 
     # Print timed paths per agent

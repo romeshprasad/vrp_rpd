@@ -1,0 +1,954 @@
+{
+  "grid": {
+    "between_nodes": [
+      [
+        8,
+        9
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        17,
+        18
+      ],
+      [
+        18,
+        19
+      ],
+      [
+        22,
+        23
+      ],
+      [
+        26,
+        27
+      ],
+      [
+        32,
+        33
+      ],
+      [
+        34,
+        35
+      ],
+      [
+        37,
+        38
+      ],
+      [
+        41,
+        42
+      ],
+      [
+        42,
+        43
+      ],
+      [
+        54,
+        55
+      ]
+    ],
+    "spur_entry_ids": [
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75
+    ],
+    "workstation_ids": [
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87
+    ],
+    "processing_times": [
+      16.60934072833945,
+      11.583176596280785,
+      17.878968798670737,
+      15.460520435890459,
+      6.412660218314743,
+      19.63433527455134,
+      16.417095529855295,
+      16.790964579154306,
+      6.921704490133188,
+      11.755789068433508,
+      10.561970363488719,
+      18.90147483272903
+    ],
+    "depot": 0
+  },
+  "vrp": {
+    "heuristic": "BRKGA (ga)",
+    "makespan": 95.31413505104376,
+    "priority_order": [
+      0,
+      2,
+      3,
+      1
+    ]
+  },
+  "mapf": {
+    "success": true,
+    "max_timestep": 43,
+    "conflicts_remaining": 0
+  },
+  "pipeline": {
+    "iterations": 1,
+    "converged": true
+  },
+  "agents": {
+    "0": {
+      "completion_time": 95.31413505104376,
+      "events": [
+        {
+          "workstation_id": 76,
+          "workstation_name": "WS01",
+          "operation": "DROPOFF",
+          "solver_idx": 1
+        },
+        {
+          "workstation_id": 80,
+          "workstation_name": "WS05",
+          "operation": "DROPOFF",
+          "solver_idx": 5
+        },
+        {
+          "workstation_id": 80,
+          "workstation_name": "WS05",
+          "operation": "PICKUP",
+          "solver_idx": 5
+        },
+        {
+          "workstation_id": 87,
+          "workstation_name": "WS12",
+          "operation": "DROPOFF",
+          "solver_idx": 12
+        },
+        {
+          "workstation_id": 87,
+          "workstation_name": "WS12",
+          "operation": "PICKUP",
+          "solver_idx": 12
+        },
+        {
+          "workstation_id": 79,
+          "workstation_name": "WS04",
+          "operation": "PICKUP",
+          "solver_idx": 4
+        }
+      ],
+      "mapf_timed_path": [
+        [
+          0,
+          0
+        ],
+        [
+          8,
+          1
+        ],
+        [
+          64,
+          2
+        ],
+        [
+          76,
+          3
+        ],
+        [
+          64,
+          4
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          12,
+          8
+        ],
+        [
+          13,
+          9
+        ],
+        [
+          21,
+          10
+        ],
+        [
+          22,
+          11
+        ],
+        [
+          68,
+          12
+        ],
+        [
+          80,
+          13
+        ],
+        [
+          68,
+          14
+        ],
+        [
+          80,
+          15
+        ],
+        [
+          68,
+          16
+        ],
+        [
+          22,
+          17
+        ],
+        [
+          30,
+          18
+        ],
+        [
+          38,
+          19
+        ],
+        [
+          46,
+          20
+        ],
+        [
+          54,
+          21
+        ],
+        [
+          75,
+          22
+        ],
+        [
+          87,
+          23
+        ],
+        [
+          75,
+          24
+        ],
+        [
+          87,
+          25
+        ],
+        [
+          75,
+          26
+        ],
+        [
+          54,
+          27
+        ],
+        [
+          46,
+          28
+        ],
+        [
+          38,
+          29
+        ],
+        [
+          37,
+          30
+        ],
+        [
+          29,
+          31
+        ],
+        [
+          28,
+          32
+        ],
+        [
+          27,
+          33
+        ],
+        [
+          19,
+          34
+        ],
+        [
+          67,
+          35
+        ],
+        [
+          79,
+          36
+        ],
+        [
+          67,
+          37
+        ],
+        [
+          18,
+          38
+        ],
+        [
+          10,
+          39
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          1,
+          41
+        ],
+        [
+          0,
+          42
+        ]
+      ]
+    },
+    "1": {
+      "completion_time": 86.92197661626926,
+      "events": [
+        {
+          "workstation_id": 77,
+          "workstation_name": "WS02",
+          "operation": "DROPOFF",
+          "solver_idx": 2
+        },
+        {
+          "workstation_id": 77,
+          "workstation_name": "WS02",
+          "operation": "PICKUP",
+          "solver_idx": 2
+        },
+        {
+          "workstation_id": 84,
+          "workstation_name": "WS09",
+          "operation": "DROPOFF",
+          "solver_idx": 9
+        },
+        {
+          "workstation_id": 84,
+          "workstation_name": "WS09",
+          "operation": "PICKUP",
+          "solver_idx": 9
+        },
+        {
+          "workstation_id": 82,
+          "workstation_name": "WS07",
+          "operation": "DROPOFF",
+          "solver_idx": 7
+        },
+        {
+          "workstation_id": 82,
+          "workstation_name": "WS07",
+          "operation": "PICKUP",
+          "solver_idx": 7
+        }
+      ],
+      "mapf_timed_path": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          65,
+          7
+        ],
+        [
+          77,
+          8
+        ],
+        [
+          65,
+          9
+        ],
+        [
+          77,
+          10
+        ],
+        [
+          65,
+          11
+        ],
+        [
+          13,
+          12
+        ],
+        [
+          21,
+          13
+        ],
+        [
+          29,
+          14
+        ],
+        [
+          37,
+          15
+        ],
+        [
+          72,
+          16
+        ],
+        [
+          84,
+          17
+        ],
+        [
+          72,
+          18
+        ],
+        [
+          84,
+          19
+        ],
+        [
+          72,
+          20
+        ],
+        [
+          37,
+          21
+        ],
+        [
+          36,
+          22
+        ],
+        [
+          35,
+          23
+        ],
+        [
+          35,
+          24
+        ],
+        [
+          34,
+          25
+        ],
+        [
+          33,
+          26
+        ],
+        [
+          70,
+          27
+        ],
+        [
+          82,
+          28
+        ],
+        [
+          70,
+          29
+        ],
+        [
+          82,
+          30
+        ],
+        [
+          70,
+          31
+        ],
+        [
+          32,
+          32
+        ],
+        [
+          24,
+          33
+        ],
+        [
+          16,
+          34
+        ],
+        [
+          8,
+          35
+        ],
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    "2": {
+      "completion_time": 90.56197036348871,
+      "events": [
+        {
+          "workstation_id": 86,
+          "workstation_name": "WS11",
+          "operation": "DROPOFF",
+          "solver_idx": 11
+        },
+        {
+          "workstation_id": 86,
+          "workstation_name": "WS11",
+          "operation": "PICKUP",
+          "solver_idx": 11
+        },
+        {
+          "workstation_id": 81,
+          "workstation_name": "WS06",
+          "operation": "DROPOFF",
+          "solver_idx": 6
+        },
+        {
+          "workstation_id": 76,
+          "workstation_name": "WS01",
+          "operation": "PICKUP",
+          "solver_idx": 1
+        },
+        {
+          "workstation_id": 79,
+          "workstation_name": "WS04",
+          "operation": "DROPOFF",
+          "solver_idx": 4
+        },
+        {
+          "workstation_id": 81,
+          "workstation_name": "WS06",
+          "operation": "PICKUP",
+          "solver_idx": 6
+        }
+      ],
+      "mapf_timed_path": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          16,
+          3
+        ],
+        [
+          24,
+          4
+        ],
+        [
+          32,
+          5
+        ],
+        [
+          33,
+          6
+        ],
+        [
+          41,
+          7
+        ],
+        [
+          42,
+          8
+        ],
+        [
+          74,
+          9
+        ],
+        [
+          86,
+          10
+        ],
+        [
+          74,
+          11
+        ],
+        [
+          86,
+          12
+        ],
+        [
+          74,
+          13
+        ],
+        [
+          43,
+          14
+        ],
+        [
+          35,
+          15
+        ],
+        [
+          27,
+          16
+        ],
+        [
+          69,
+          17
+        ],
+        [
+          81,
+          18
+        ],
+        [
+          69,
+          19
+        ],
+        [
+          26,
+          20
+        ],
+        [
+          18,
+          21
+        ],
+        [
+          17,
+          22
+        ],
+        [
+          9,
+          23
+        ],
+        [
+          64,
+          24
+        ],
+        [
+          76,
+          25
+        ],
+        [
+          64,
+          26
+        ],
+        [
+          9,
+          27
+        ],
+        [
+          17,
+          28
+        ],
+        [
+          18,
+          29
+        ],
+        [
+          67,
+          30
+        ],
+        [
+          79,
+          31
+        ],
+        [
+          67,
+          32
+        ],
+        [
+          18,
+          33
+        ],
+        [
+          26,
+          34
+        ],
+        [
+          69,
+          35
+        ],
+        [
+          81,
+          36
+        ],
+        [
+          69,
+          37
+        ],
+        [
+          26,
+          38
+        ],
+        [
+          18,
+          39
+        ],
+        [
+          10,
+          40
+        ],
+        [
+          2,
+          41
+        ],
+        [
+          1,
+          42
+        ],
+        [
+          0,
+          43
+        ]
+      ]
+    },
+    "3": {
+      "completion_time": 87.7557890684335,
+      "events": [
+        {
+          "workstation_id": 78,
+          "workstation_name": "WS03",
+          "operation": "DROPOFF",
+          "solver_idx": 3
+        },
+        {
+          "workstation_id": 83,
+          "workstation_name": "WS08",
+          "operation": "DROPOFF",
+          "solver_idx": 8
+        },
+        {
+          "workstation_id": 78,
+          "workstation_name": "WS03",
+          "operation": "PICKUP",
+          "solver_idx": 3
+        },
+        {
+          "workstation_id": 83,
+          "workstation_name": "WS08",
+          "operation": "PICKUP",
+          "solver_idx": 8
+        },
+        {
+          "workstation_id": 85,
+          "workstation_name": "WS10",
+          "operation": "DROPOFF",
+          "solver_idx": 10
+        },
+        {
+          "workstation_id": 85,
+          "workstation_name": "WS10",
+          "operation": "PICKUP",
+          "solver_idx": 10
+        }
+      ],
+      "mapf_timed_path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          17,
+          3
+        ],
+        [
+          66,
+          4
+        ],
+        [
+          78,
+          5
+        ],
+        [
+          66,
+          6
+        ],
+        [
+          17,
+          7
+        ],
+        [
+          25,
+          8
+        ],
+        [
+          33,
+          9
+        ],
+        [
+          34,
+          10
+        ],
+        [
+          71,
+          11
+        ],
+        [
+          83,
+          12
+        ],
+        [
+          71,
+          13
+        ],
+        [
+          35,
+          14
+        ],
+        [
+          27,
+          15
+        ],
+        [
+          19,
+          16
+        ],
+        [
+          18,
+          17
+        ],
+        [
+          66,
+          18
+        ],
+        [
+          78,
+          19
+        ],
+        [
+          66,
+          20
+        ],
+        [
+          17,
+          21
+        ],
+        [
+          25,
+          22
+        ],
+        [
+          33,
+          23
+        ],
+        [
+          34,
+          24
+        ],
+        [
+          71,
+          25
+        ],
+        [
+          83,
+          26
+        ],
+        [
+          71,
+          27
+        ],
+        [
+          34,
+          28
+        ],
+        [
+          42,
+          29
+        ],
+        [
+          73,
+          30
+        ],
+        [
+          85,
+          31
+        ],
+        [
+          73,
+          32
+        ],
+        [
+          85,
+          33
+        ],
+        [
+          73,
+          34
+        ],
+        [
+          41,
+          35
+        ],
+        [
+          33,
+          36
+        ],
+        [
+          25,
+          37
+        ],
+        [
+          17,
+          38
+        ],
+        [
+          9,
+          39
+        ],
+        [
+          1,
+          40
+        ],
+        [
+          0,
+          41
+        ]
+      ]
+    }
+  }
+}

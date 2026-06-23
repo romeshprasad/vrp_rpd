@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "vrp_rpd"))
 from vrp_rpd import VRPRPDInstance
 
-from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_bays29_grid, node_rc
+from vrp_rpd.agv_testbed.grid_env import WarehouseGrid, load_physical_grid, node_rc
 
 
 def build_vrp_instance(
@@ -32,7 +32,7 @@ def build_vrp_instance(
     """Build a VRPRPDInstance from a WarehouseGrid."""
     D = grid.solver_distance_matrix()   # (n+1)×(n+1)
 
-    n = len(grid.cell_nodes)
+    n = len(grid.between_nodes)
     proc = np.zeros(n + 1, dtype=np.float64)
     proc[1:] = grid.processing_times
 
@@ -94,8 +94,8 @@ def tours_to_grid_paths(tours: dict, grid: WarehouseGrid) -> dict:
 # Quick test
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    from vrp_rpd.agv_testbed.grid_env import load_dataset_grid
-    grid = load_dataset_grid("bays29", variant="base", seed=42)
+    import numpy as np
+    grid = load_physical_grid(rng=np.random.default_rng(42))
     inst = build_vrp_instance(grid, num_agents=4, resources_per_agent=6)
 
     print(f"VRPRPDInstance built:")
@@ -107,10 +107,9 @@ if __name__ == "__main__":
     print(f"  processing times (first 5) : {inst.proc[1:6]}")
 
     # Show virtual ID scheme
-    n = len(grid.cell_nodes)
+    n = len(grid.between_nodes)
     print(f"\nVirtual ID scheme (n={n} workstations):")
-    print(f"  Transit nodes  : 0–99")
+    print(f"  Transit nodes  : 0–63")
     print(f"  Spur entries   : {grid.spur_entry_ids[0]}–{grid.spur_entry_ids[-1]}")
     print(f"  Workstations   : {grid.workstation_ids[0]}–{grid.workstation_ids[-1]}")
-    print(f"  Cell nodes (first 5): {grid.cell_nodes[:5]}")
-    print(f"  Spur transit   (first 5): {grid.spur_transit_nodes[:5]}")
+    print(f"  Between-nodes (first 5): {grid.between_nodes[:5]}")
